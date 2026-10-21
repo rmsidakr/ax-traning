@@ -7,6 +7,8 @@
 | `ax_training.html` | 단일 교안 HTML. 빔프로젝터로 띄움. 사전 안내, PC 셋팅, 1교시, 2교시(실습 콘텐츠와 웹앱 제작 시나리오 포함) |
 | `pc_setup.ipynb` | 수강생 배포용 셋팅 노트북. 0~14단계, 맨 끝에 실습 프롬프트 모음 |
 | `DECISION_LOG.md` | 이 문서 |
+| `REVIEW_LOG.md` | 블록별 리뷰 수정 이력과 이어서 작업하는 방법 (이 문서보다 최신) |
+| `tools/` | 실시간 미리보기 서버(`live_server.py`), Chrome 캡처 검증(`chrome_shot.sh`) |
 
 ---
 

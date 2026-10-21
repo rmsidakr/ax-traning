@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AX 실습 교안</title>
+<title>정보보호 AX 실습</title>
 <style>
 :root {
   --bg: #ffffff;
@@ -65,8 +65,9 @@ section.block { padding-top: 56px; margin-top: 24px; border-top: 4px solid var(-
 table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 18px; }
 th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
 th { background: var(--panel); font-weight: 700; }
-td.time { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 700; width: 1%; }
+td.time, td.blk { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 700; width: 1%; }
 .table-wrap { overflow-x: auto; }
+tr.break td { background: var(--panel); color: var(--muted); }
 code { font-family: Consolas, "D2Coding", monospace; background: var(--panel); padding: 1px 6px; border-radius: 4px; font-size: .92em; }
 .todo { background: var(--todo); color: #000; padding: 0 4px; border-radius: 3px; font-weight: 700; }
 .box { border: 1px solid var(--line); border-left-width: 6px; border-radius: 8px; padding: 14px 18px; margin: 16px 0; }
@@ -86,7 +87,7 @@ code { font-family: Consolas, "D2Coding", monospace; background: var(--panel); p
 .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 16px 0; }
 .rules .r { border: 2px solid var(--danger); border-radius: 10px; padding: 14px 16px; }
 .rules .r .n { font-size: 30px; font-weight: 700; color: var(--danger); line-height: 1; }
-.rules .r b { display: block; margin: 6px 0 4px; font-size: 21px; }
+.rules .r > b:first-of-type { display: block; margin: 6px 0 4px; font-size: 21px; }
 .topic { border: 1px solid var(--line); border-radius: 12px; padding: 4px 24px 20px; margin: 28px 0; }
 .topic > h3 { border-top: 0; margin-top: 16px; }
 .topic-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 12px; }
@@ -124,30 +125,65 @@ button.copy:hover { background: rgba(255,255,255,.15); }
 .cover { padding: 24px 0 8px; }
 .cover .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .small { font-size: 16px; color: var(--muted); }
+/* 설치 화면 예시(스냅샷) */
+.snaps { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; margin: 12px 0 20px; }
+.snap-cap { font-size: 15px; color: var(--muted); margin: 6px 0 0; }
+.snap { border: 1px solid #b9c0cc; border-radius: 6px; overflow: hidden; background: #fff; color: #1b1b1b;
+  font-family: "Segoe UI", "Malgun Gothic", sans-serif; font-size: 14px; line-height: 1.45; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+.snap .tb { display: flex; justify-content: space-between; background: #fff; border-bottom: 1px solid #e3e3e3; padding: 5px 10px; font-size: 13px; color: #333; }
+.py-body { display: grid; grid-template-columns: 96px 1fr; min-height: 250px; }
+.py-side { background: linear-gradient(#3b77a8, #ffd43b); }
+.py-main { padding: 14px 16px; }
+.py-main .h { font-size: 19px; color: #1f3d73; margin-bottom: 6px; }
+.py-main .t { font-size: 12px; }
+.py-opt { padding: 6px 8px; margin: 6px 0; border-radius: 4px; }
+.py-opt b { color: #1f3d73; font-size: 16px; }
+.py-opt div { font-size: 12px; color: #555; }
+.py-chk { margin: 4px 0; font-size: 13px; }
+.py-btn { display: inline-block; border: 1px solid #adadad; background: #e1e1e1; padding: 2px 18px; font-size: 13px; }
+.mark { outline: 3px solid #e0282e; outline-offset: 2px; }
+.callout { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
+  background: #e0282e; color: #fff; font-weight: 700; font-size: 13px; font-family: system-ui, sans-serif; margin-right: 6px; vertical-align: middle; }
+.vs { display: grid; grid-template-columns: 44px 1fr; background: #1f1f1f; color: #ccc; min-height: 230px; }
+.vs .tb { background: #181818; color: #ccc; border-color: #2b2b2b; grid-column: 1 / -1; }
+.vs-act { background: #181818; display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 12px; }
+.vs-ico { width: 20px; height: 20px; border: 2px solid #858585; border-radius: 3px; }
+.vs-ico.ext { border: 0; display: grid; grid-template-columns: 8px 8px; gap: 2px; }
+.vs-ico.ext i { border: 2px solid #fff; display: block; }
+.vs-ico.ext i:nth-child(2) { transform: translate(2px, -2px) rotate(45deg); }
+.vs-side { padding: 10px 12px; }
+.vs-side .ttl { font-size: 11px; letter-spacing: .06em; margin-bottom: 8px; }
+.vs-search { background: #313131; border: 1px solid #3c3c3c; color: #fff; padding: 3px 8px; font-size: 13px; }
+.vs-item { display: grid; grid-template-columns: 38px 1fr; gap: 8px; margin-top: 12px; padding: 6px; background: #04395e; border-radius: 3px; }
+.vs-logo { width: 38px; height: 38px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 13px; }
+.vs-item .nm { color: #fff; font-weight: 600; }
+.vs-item .pub { font-size: 12px; color: #9ac8ff; }
+.vs-item .desc { font-size: 12px; color: #bbb; }
+.vs-install { display: inline-block; background: #0078d4; color: #fff; font-size: 12px; padding: 1px 8px; border-radius: 2px; margin-top: 6px; }
 </style>
 </head>
 <body>
 
 <nav>
   <div class="brand">AX 실습 교안</div>
-  <div class="sub">정보보호 업무에 AI 써 보기</div>
+  <div class="sub">정보보호 AX - 각 그룹별 실습</div>
   <a href="#schedule">오늘의 일정</a>
   <a href="#pre">1. 사전 안내 (30분)</a>
   <a class="lv2" href="#pre-flow">실습 흐름과 도구</a>
   <a class="lv2" href="#pre-rules">안전 규칙 3가지</a>
   <a class="lv2" href="#pre-install">Python·Jupyter 설치</a>
-  <a href="#setup">2. PC 환경 셋팅 (60분)</a>
-  <a class="lv2" href="#setup-nb">노트북 사용법</a>
+  <a href="#setup">2. PC 환경 셋팅 (20분)</a>
+  <a class="lv2" href="#setup-nb">Jupyter 노트북 사용법</a>
   <a class="lv2" href="#setup-claude">Claude Code 첫 실행</a>
   <a class="lv2" href="#setup-env">.env 설정</a>
   <a class="lv2" href="#setup-trouble">막혔을 때</a>
-  <a href="#s1">3-1. 1교시 AI 체험 (60분)</a>
+  <a href="#s1">3-1. 1교시 AI 체험 (50분)</a>
   <a class="lv2" href="#s1-basic">Claude Code 기본 조작</a>
   <a class="lv2" href="#t1a">1-A 말로 Splunk 묻기</a>
   <a class="lv2" href="#t1b">1-B 요약 브리핑 메일</a>
   <a class="lv2" href="#t1c">1-C 메신저로 (더 해보기)</a>
   <a class="lv2" href="#t1d">1-D 점검 일정 등록·정리</a>
-  <a href="#s2">3-2. 2교시 내 업무 적용 (60분)</a>
+  <a href="#s2">3-2. 2교시 내 업무 적용 (50분)</a>
   <a class="lv2" href="#t2a">2-A 맞춤 리포트</a>
   <a class="lv2" href="#t2b">2-B 타임라인 조사</a>
   <a class="lv2" href="#t2c">2-C 조치 일정 관리</a>
@@ -160,12 +196,11 @@ button.copy:hover { background: rgba(255,255,255,.15); }
 
 <!-- ═════════════════════════ 표지 · 일정 ═════════════════════════ -->
 <header class="cover" id="schedule">
-  <h1>정보보호 업무에 AI 써 보기</h1>
-  <p class="lead">사내 Model/MCP Gateway와 Claude Code로 <b>Splunk 조회 → AI 분석 → 메일·메신저·일정</b>까지 직접 해 봅니다.</p>
+  <h1>정보보호 AX - 각 그룹별 실습</h1>
+  <p class="lead">Claude Code와 사내 Model/MCP Gateway를 이용한 기본 업무 + 그룹 맞춤형 실습</p>
   <div class="meta">
-    <span class="badge">총 3시간 30분</span>
-    <span class="badge talk">수강생 20명 · 강사 1 · 보조강사 2</span>
-    <span class="badge talk">개인 업무 PC 원격 접속</span>
+    <span class="badge">Claude Code</span>
+    <span class="badge talk">개인 PC 활용</span>
   </div>
 </header>
 
@@ -173,62 +208,57 @@ button.copy:hover { background: rgba(255,255,255,.15); }
 <div class="table-wrap">
 <table>
   <tr><th>시간</th><th>블록</th><th>무엇을 하나요?</th><th>끝나면 할 수 있는 것</th></tr>
-  <tr><td class="time">0:00–0:30</td><td><b>1. 사전 안내</b></td><td>실습 흐름, 안전 규칙, AI 활용 경험 소개, Python·Jupyter 설치</td><td>오늘의 흐름과 안전 규칙 3가지를 말할 수 있다</td></tr>
-  <tr><td class="time">0:30–1:30</td><td><b>2. PC 환경 셋팅</b></td><td>VS Code에서 셋팅 노트북을 ▶ 버튼으로 실행하며 점검·보충</td><td>노트북의 모든 항목을 ✅로 만든다</td></tr>
-  <tr><td class="time">1:30–2:30</td><td><b>3-1. 1교시</b></td><td>사내 인프라로 AI 체험하기</td><td>조회 → 분석 → 발송, 일정 등록·삭제를 직접 해 보고 결과를 내 메일함·달력에서 확인한다</td></tr>
-  <tr><td class="time">2:30–3:30</td><td><b>3-2. 2교시</b></td><td>1교시 내용을 내 업무에 적용하기</td><td>내 업무에 맞게 프롬프트를 바꿔 실행하고, 다음에도 쓰게 저장한다</td></tr>
+  <tr><td class="time">09:00–09:30</td><td class="blk"><b>1. 사전 안내</b></td><td>실습 흐름, 안전 규칙, AI 활용 경험 소개, Python·Jupyter 설치</td><td>오늘의 흐름과 안전 규칙 3가지를 말할 수 있다</td></tr>
+  <tr><td class="time">09:30–09:50</td><td class="blk"><b>2. PC 환경 셋팅</b></td><td>VS Code에서 셋팅용 Jupyter 노트북을 ▶ 버튼으로 실행하며 점검·보충</td><td>Jupyter 노트북의 모든 항목을 ✅로 만든다</td></tr>
+  <tr class="break"><td class="time">09:50–10:00</td><td class="blk">쉬는 시간</td><td colspan="2"></td></tr>
+  <tr><td class="time">10:00–10:50</td><td class="blk"><b>3-1. 1교시</b></td><td>사내 인프라로 AI 체험하기</td><td>조회 → 분석 → 발송, 일정 등록·삭제를 직접 해 보고 결과를 내 메일함과 일정에서 확인한다</td></tr>
+  <tr class="break"><td class="time">10:50–11:00</td><td class="blk">쉬는 시간</td><td colspan="2"></td></tr>
+  <tr><td class="time">11:00–11:50</td><td class="blk"><b>3-2. 2교시</b></td><td>1교시 내용을 내 업무에 적용하기</td><td>내 업무에 맞게 프롬프트를 바꿔 실행하고, 다음에도 쓰게 저장한다</td></tr>
 </table>
 </div>
-<p class="small">시간은 시작 시각부터 지난 시간입니다. 쉬는 시간은 현장 사정에 맞게 넣습니다.</p>
 
 <!-- ═════════════════════════ 1. 사전 안내 ═════════════════════════ -->
 <section class="block" id="pre">
   <div class="block-head"><h2>1. 사전 안내</h2><span class="badge">30분</span></div>
   <div class="table-wrap">
   <table>
-    <tr><th>시간</th><th>내용</th><th>자료</th></tr>
-    <tr><td class="time">00–05</td><td>인사, 오늘 일정, 원격 접속 상태 확인</td><td>교안</td></tr>
-    <tr><td class="time">05–12</td><td>실습 흐름과 오늘 쓰는 도구</td><td>교안</td></tr>
-    <tr><td class="time">12–17</td><td>안전 규칙 3가지</td><td>교안</td></tr>
-    <tr><td class="time">17–25</td><td>AI 활용 경험 소개</td><td><span class="badge ppt">강사 PPTX</span></td></tr>
-    <tr><td class="time">25–30</td><td>Python 설치, VS Code Jupyter 확장 설치</td><td>교안</td></tr>
+    <tr><th>시간</th><th>내용</th></tr>
+    <tr><td class="time">09:00–09:05</td><td>인사, 오늘 일정, 원격 접속 상태 확인</td></tr>
+    <tr><td class="time">09:05–09:12</td><td>실습 흐름과 오늘 쓰는 도구</td></tr>
+    <tr><td class="time">09:12–09:17</td><td>안전 규칙 3가지</td></tr>
+    <tr><td class="time">09:17–09:25</td><td>AI 활용 경험 소개 <span class="badge ppt">강사 PPTX</span></td></tr>
+    <tr><td class="time">09:25–09:30</td><td>Python·VS Code 확장 설치와 설치 확인</td></tr>
   </table>
   </div>
 
   <h3 id="pre-flow">오늘의 실습 흐름</h3>
   <p>모든 실습은 같은 흐름을 따릅니다. <b>③ 사람 확인</b>이 항상 들어간다는 점이 가장 중요합니다.</p>
   <div class="flow">
-    <div class="step"><b>① 조회</b><span>Splunk에서 보안 로그를 가져온다 (입력)</span></div>
+    <div class="step"><b>① 조회</b></div>
     <div class="arrow">→</div>
-    <div class="step"><b>② AI 분석·요약</b><span>Claude가 정리하고 초안이나 실행 계획을 만든다 (처리)</span></div>
+    <div class="step"><b>② AI 분석·요약</b></div>
     <div class="arrow">→</div>
-    <div class="step human"><b>③ 사람 확인</b><span>내가 읽고 고치고 "보내줘"라고 말한다</span></div>
+    <div class="step human"><b>③ 사람 확인</b></div>
     <div class="arrow">→</div>
-    <div class="step"><b>④ 내보내기</b><span>나에게 메일·메신저 발송, 내 일정 등록 (출력)</span></div>
+    <div class="step"><b>④ 내보내기</b></div>
   </div>
 
   <h4>오늘 쓰는 도구</h4>
   <div class="table-wrap">
   <table>
     <tr><th>이름</th><th>한 줄 설명</th></tr>
-    <tr><td><b>VS Code</b></td><td>오늘의 작업 화면. 노트북과 터미널을 모두 이 안에서 엽니다.</td></tr>
+    <tr><td><b>VS Code</b></td><td>오늘의 작업 화면. Jupyter 노트북과 터미널을 모두 이 안에서 엽니다.</td></tr>
     <tr><td><b>Claude Code</b></td><td>터미널(글자로 명령하는 창)에서 말로 일을 시키는 AI 도우미</td></tr>
     <tr><td><b>프롬프트</b></td><td>AI에게 하는 말(지시문). 구체적일수록 결과가 좋아집니다.</td></tr>
     <tr><td><b>Gateway</b></td><td>AI 모델과 사내 도구를 한 창구로 묶어 주는 사내 중계 서버</td></tr>
     <tr><td><b>MCP</b></td><td>AI가 메일·메신저·일정·Splunk 같은 사내 시스템을 쓰게 해 주는 연결 규격</td></tr>
     <tr><td><b>Skill</b></td><td>Claude Code에 미리 넣어 두는 업무 설명서. 오늘은 사내 Gateway를 쉽게 쓰게 해 줍니다.</td></tr>
-    <tr><td><b>Splunk</b></td><td>보안 로그를 모아 두고 검색하는 시스템. 오늘의 입력 데이터입니다.</td></tr>
   </table>
-  </div>
-  <div class="box note">
-    <div class="box-title">오늘 쓰는 MCP 기능</div>
-    <p><b>쓸 수 있는 것:</b> Splunk 조회, 메일 발송, 메신저 발송, 내 일정 등록·수정·조회·삭제<br>
-    <b>쓸 수 없는 것:</b> 받은 메일이나 메신저 읽기. 메일과 메신저는 <b>AI가 만든 결과를 내보내는 통로</b>로만 씁니다.</p>
   </div>
 
   <h3 id="pre-rules">안전 규칙 3가지</h3>
   <div class="rules">
-    <div class="r"><div class="n">1</div><b>발송은 나에게만</b>받는 사람도, 보내는 사람도 <b>나</b>입니다. 메일은 보내는 사람을 바꿀 수 있으니 꼭 확인합니다. 메신저는 <span class="todo">[확인 필요: 메신저 고정 발신 계정 이름]</span> 계정으로 도착합니다.</div>
+    <div class="r"><div class="n">1</div><b>발송은 나에게만</b>AI에게 메일/메신저 발송을 요청할때, 수신인은 꼭 본인 계정으로 지정해주세요.</div>
     <div class="r"><div class="n">2</div><b>권한 확인창은 읽고 허용</b>Claude Code가 "실행해도 될까요?"라고 물으면 받는 사람, 일정 제목을 읽고 고릅니다. 발송·삭제에는 <b>"항상 허용"을 누르지 않습니다.</b></div>
     <div class="r"><div class="n">3</div><b>실습 일정은 [AX실습]</b>실습 일정 제목은 <code>[AX실습]</code>으로 시작합니다. <b>내 일정만</b> 다루고, 실습이 끝나면 목록을 확인한 뒤 삭제합니다.</div>
   </div>
@@ -237,31 +267,118 @@ button.copy:hover { background: rgba(255,255,255,.15); }
   <p class="small">이 시간은 강사가 따로 준비한 PPTX로 진행합니다. 끝나면 다음 순서로 돌아옵니다.</p>
 
   <h3 id="pre-install">Python과 Jupyter 확장 설치</h3>
-  <p>다음 블록의 셋팅 노트북을 열려면 Python과 VS Code 확장이 <b>먼저</b> 있어야 합니다. 지금 설치를 시작합니다.</p>
+  <p>다음 블록에서 쓰는 셋팅용 <b>Jupyter 노트북</b>(<code>pc_setup.ipynb</code>: 설명과 실행 버튼이 함께 들어 있는 문서 파일)을 열려면 Python과 VS Code 확장이 <b>먼저</b> 있어야 합니다. 지금 설치하고, 설치가 잘 됐는지 버전까지 확인합니다.</p>
+
   <h4>① Python 설치</h4>
   <ol class="steps">
     <li>배포받은 Python 설치파일을 더블클릭합니다. <span class="todo">[확인 필요: 배포 Python 설치파일 이름·버전]</span></li>
     <li>첫 화면 아래쪽의 <b>Add python.exe to PATH</b>를 <b>반드시 체크</b>합니다.</li>
     <li><b>Install Now</b>를 누르고 끝날 때까지 기다립니다.</li>
+    <li><b>Setup was successful</b>이 나오면 <b>Close</b>를 누릅니다.</li>
   </ol>
+  <div class="snaps">
+    <div>
+      <div class="snap">
+        <div class="tb"><span>Python 3.x (64-bit) Setup</span><span>✕</span></div>
+        <div class="py-body">
+          <div class="py-side"></div>
+          <div class="py-main">
+            <div class="h">Install Python 3.x (64-bit)</div>
+            <div class="t">Select Install Now to install Python with default settings, or choose Customize to enable or disable features.</div>
+            <div class="py-opt mark"><b><span class="callout">2</span>→ Install Now</b><div>C:\Users\(사용자)\AppData\Local\Programs\Python\Python3xx<br>Includes IDLE, pip and documentation</div></div>
+            <div class="py-opt"><b>→ Customize installation</b></div>
+            <div class="py-chk">☑ Use admin privileges when installing py.exe</div>
+            <div class="py-chk"><span class="mark"><span class="callout">1</span>☑ Add python.exe to PATH</span></div>
+            <div style="text-align:right;margin-top:6px"><span class="py-btn">Cancel</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="snap-cap">첫 화면: <b>❶ PATH 체크 → ❷ Install Now</b></p>
+    </div>
+    <div>
+      <div class="snap">
+        <div class="tb"><span>Python 3.x (64-bit) Setup</span><span>✕</span></div>
+        <div class="py-body">
+          <div class="py-side"></div>
+          <div class="py-main">
+            <div class="h">Setup was successful</div>
+            <div class="t">New to Python? Start with the online tutorial and documentation.</div>
+            <div class="py-opt"><b>→ Disable path length limit</b><div>(누르지 않아도 됩니다)</div></div>
+            <div style="text-align:right;margin-top:64px"><span class="py-btn mark"><span class="callout">3</span>Close</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="snap-cap">끝 화면: <b>❸ Close</b></p>
+    </div>
+  </div>
+
   <h4>② VS Code 확장 설치</h4>
   <ol class="steps">
-    <li>VS Code 왼쪽의 <b>확장</b> 아이콘(네모 4개)을 누릅니다. (단축키: <code>Ctrl + Shift + X</code>)</li>
-    <li><b>Python</b>을 검색해 Microsoft가 만든 확장을 설치합니다.</li>
-    <li><b>Jupyter</b>를 검색해 Microsoft가 만든 확장을 설치합니다.</li>
+    <li>VS Code 왼쪽 세로 줄의 <b>확장</b> 아이콘(네모 4개)을 누릅니다. (단축키: <code>Ctrl + Shift + X</code>)</li>
+    <li>검색 칸에 <b>Python</b>을 입력하고, 만든 곳이 <b>Microsoft</b>인 확장의 <b>Install</b>을 누릅니다.</li>
+    <li>같은 방법으로 <b>Jupyter</b>를 검색해 <b>Microsoft</b> 확장을 설치합니다.</li>
     <li>설치 후 VS Code를 완전히 닫았다 다시 엽니다.</li>
   </ol>
+  <div class="snaps">
+    <div>
+      <div class="snap vs">
+        <div class="tb"><span>Visual Studio Code</span><span>✕</span></div>
+        <div class="vs-act"><span class="vs-ico"></span><span class="vs-ico"></span><span class="vs-ico ext mark"><i></i><i></i><i></i><i></i></span></div>
+        <div class="vs-side">
+          <div class="ttl">EXTENSIONS: MARKETPLACE</div>
+          <div class="vs-search mark"><span class="callout">2</span>Python</div>
+          <div class="vs-item"><span class="vs-logo" style="background:#3776ab">Py</span>
+            <div><div class="nm">Python</div><div class="pub">Microsoft ✔</div><div class="desc">Python language support…</div>
+            <span class="vs-install mark"><span class="callout" style="width:18px;height:18px;font-size:11px">3</span>Install</span></div></div>
+        </div>
+      </div>
+      <p class="snap-cap"><b>❶ 확장 아이콘(빨간 테두리) → ❷ "Python" 검색 → ❸ Install</b></p>
+    </div>
+    <div>
+      <div class="snap vs">
+        <div class="tb"><span>Visual Studio Code</span><span>✕</span></div>
+        <div class="vs-act"><span class="vs-ico"></span><span class="vs-ico"></span><span class="vs-ico ext"><i></i><i></i><i></i><i></i></span></div>
+        <div class="vs-side">
+          <div class="ttl">EXTENSIONS: MARKETPLACE</div>
+          <div class="vs-search">Jupyter</div>
+          <div class="vs-item"><span class="vs-logo" style="background:#f37626">Ju</span>
+            <div><div class="nm">Jupyter</div><div class="pub">Microsoft ✔</div><div class="desc">Jupyter notebook support…</div>
+            <span class="vs-install mark">Install</span></div></div>
+        </div>
+      </div>
+      <p class="snap-cap">같은 방법으로 <b>"Jupyter" 검색 → Install</b></p>
+    </div>
+  </div>
+  <div class="box note"><div class="box-title">Python 확장만 설치하면 안 되나요?</div>
+    <p>안 됩니다. <b>Python 확장</b>은 Python 코드를 다루는 기능이고, Jupyter 노트북(<code>.ipynb</code>)을 열고 ▶로 실행하는 기능은 <b>Jupyter 확장</b>에 따로 들어 있습니다. Python 확장을 설치해도 Jupyter 확장은 함께 설치되지 않으므로 <b>두 개 모두</b> 설치합니다.</p></div>
   <p class="small">확장 설치 경로: <span class="todo">[확인 필요: VS Code 확장 설치 경로(마켓 접속 가능 여부 / 설치파일 배포)]</span></p>
+
+  <h4>③ 설치 확인 (Jupyter 노트북으로 버전 확인)</h4>
+  <ol class="steps">
+    <li>VS Code에서 <b>파일 → 파일 열기</b>로 배포받은 <code>pc_setup.ipynb</code>를 엽니다.</li>
+    <li>오른쪽 위 <b>커널 선택</b> → <b>Python 환경</b> → 방금 설치한 <b>Python 3.x</b>를 고릅니다.</li>
+    <li><b>0단계</b>와 <b>1단계</b> 회색 칸 왼쪽의 <b>▶</b>를 차례로 누릅니다.</li>
+    <li>"<b>ipykernel</b> 패키지가 필요합니다"라는 창이 뜨면 <b>설치</b>를 누릅니다. Jupyter 노트북을 실행하는 데 필요한 부품입니다. <span class="todo">[확인 필요: 사내 pip 저장소/프록시]</span></li>
+    <li>아래처럼 ✅ 세 줄이 나오면 설치가 끝난 것입니다.</li>
+  </ol>
+  <div class="term"><span class="dim"># 0·1단계 실행 결과 (정상)</span>
+✅ 준비 완료 (Python 3.x.x)
+✅ Python 3.x.x — 위치: C:\Users\(사용자)\AppData\Local\Programs\Python\Python3xx\python.exe
+✅ VS Code 확장 확인: Python 20xx.x.x, Jupyter 20xx.x.x</div>
+  <div class="box hint"><div class="box-title">💡 Jupyter 노트북이 실행되지 않으면 터미널로 확인</div>
+    <p>VS Code 메뉴 <b>터미널 → 새 터미널</b>에서 아래 두 줄을 입력합니다. 첫 줄 결과에 <b>Python 3.x.x</b>, 둘째 줄 목록에 <b>ms-python.python</b>과 <b>ms-toolsai.jupyter</b>가 보이면 설치는 된 것입니다. 이 화면을 보조강사에게 보여 주세요.</p>
+    <div class="term" style="margin-bottom:0">python --version
+code --list-extensions --show-versions</div></div>
 </section>
 
 <!-- ═════════════════════════ 2. PC 환경 셋팅 ═════════════════════════ -->
 <section class="block" id="setup">
-  <div class="block-head"><h2>2. PC 환경 셋팅</h2><span class="badge">60분</span><span class="badge talk">모두 VS Code 안에서</span></div>
-  <p>배포한 <code>pc_setup.ipynb</code> 노트북을 VS Code에서 열고, 위에서부터 ▶ 버튼을 누르며 따라갑니다. Claude Code는 <b>VS Code 터미널</b>에서 실행합니다.</p>
+  <div class="block-head"><h2>2. PC 환경 셋팅</h2><span class="badge">20분</span><span class="badge talk">모두 VS Code 안에서</span></div>
+  <p>배포한 셋팅용 Jupyter 노트북 <code>pc_setup.ipynb</code>를 VS Code에서 열고, 위에서부터 ▶ 버튼을 누르며 따라갑니다. Claude Code는 <b>VS Code 터미널</b>에서 실행합니다.</p>
   <div class="table-wrap">
   <table>
-    <tr><th>시간</th><th>노트북 단계</th><th>내용</th></tr>
-    <tr><td class="time">00–05</td><td>0–1단계</td><td>노트북 열기, 커널(Python) 선택, Python 확인</td></tr>
+    <tr><th>시간</th><th>단계</th><th>내용</th></tr>
+    <tr><td class="time">00–05</td><td>0–1단계</td><td>Jupyter 노트북 열기, 커널(Python) 선택, Python·확장 확인</td></tr>
     <tr><td class="time">05–15</td><td>2–5단계</td><td>사전 배포 확인: Windows 11, VS Code, Claude Code, Bedrock 연결 설정</td></tr>
     <tr><td class="time">15–22</td><td>6–7단계</td><td>추가 도구: Python 패키지, Node.js(필요한 경우만)</td></tr>
     <tr><td class="time">22–32</td><td>8단계</td><td><b>Claude Code 첫 실행</b>과 실습 폴더 <code>ax-traning</code> 만들기</td></tr>
@@ -272,7 +389,7 @@ button.copy:hover { background: rgba(255,255,255,.15); }
   </table>
   </div>
 
-  <h3 id="setup-nb">노트북 사용법</h3>
+  <h3 id="setup-nb">Jupyter 노트북 사용법</h3>
   <div class="two">
     <div>
       <ol class="steps">
@@ -340,7 +457,7 @@ claude</div>
   <ol class="steps">
     <li>터미널 오른쪽 위의 <b>+</b>로 새 터미널을 열고 <code>code $HOME\ax-traning\.env</code>를 입력합니다.</li>
     <li>메일로 받은 Virtual Key를 <code>=</code> 바로 뒤에 붙여 넣고 <b>Ctrl + S</b>로 저장합니다. <span class="todo">[확인 필요: Virtual Key 전달 메일 제목·발송 시점]</span></li>
-    <li>노트북 10단계를 실행해 <b>✅ Virtual Key 입력됨 (●●●● N자)</b>가 나오는지 확인합니다.</li>
+    <li>Jupyter 노트북 10단계를 실행해 <b>✅ Virtual Key 입력됨 (●●●● N자)</b>가 나오는지 확인합니다.</li>
   </ol>
   <div class="box rule"><div class="box-title">🔒 키는 대화창에 붙여 넣지 않습니다</div>
     <p>Claude Code 대화창에 붙여 넣은 내용은 AI 모델로 전달되고 PC 기록에도 남습니다. 키는 <b>VS Code 편집기에서 .env 파일에만</b> 넣고, 실습 폴더는 다른 사람과 공유하지 않습니다.</p></div>
@@ -360,7 +477,7 @@ claude</div>
 
 <!-- ═════════════════════════ 3-1. 1교시 ═════════════════════════ -->
 <section class="block" id="s1">
-  <div class="block-head"><h2>3-1. 1교시: 사내 인프라로 AI 체험하기</h2><span class="badge">60분</span></div>
+  <div class="block-head"><h2>3-1. 1교시: 사내 인프라로 AI 체험하기</h2><span class="badge">50분</span></div>
   <div class="table-wrap">
   <table>
     <tr><th>시간</th><th>내용</th><th>형태</th></tr>
@@ -383,7 +500,7 @@ claude</div>
   <table>
     <tr><th>하고 싶은 것</th><th>방법</th></tr>
     <tr><td>말 걸기</td><td>입력창에 쓰고 <b>Enter</b></td></tr>
-    <tr><td>여러 줄 프롬프트 넣기</td><td>복사해서 <b>붙여 넣기</b>(노트북 맨 아래 "실습 프롬프트 모음")</td></tr>
+    <tr><td>여러 줄 프롬프트 넣기</td><td>복사해서 <b>붙여 넣기</b>(Jupyter 노트북 맨 아래 "실습 프롬프트 모음")</td></tr>
     <tr><td>진행 중인 작업 멈추기</td><td><b>Esc</b></td></tr>
     <tr><td>새 대화로 시작</td><td><code>/clear</code></td></tr>
     <tr><td>끝내기</td><td><code>/exit</code></td></tr>
@@ -553,7 +670,7 @@ claude</div>
 
 <!-- ═════════════════════════ 3-2. 2교시 ═════════════════════════ -->
 <section class="block" id="s2">
-  <div class="block-head"><h2>3-2. 2교시: 내 업무에 적용해 보기</h2><span class="badge">60분</span></div>
+  <div class="block-head"><h2>3-2. 2교시: 내 업무에 적용해 보기</h2><span class="badge">50분</span></div>
   <div class="table-wrap">
   <table>
     <tr><th>시간</th><th>내용</th><th>형태</th></tr>
