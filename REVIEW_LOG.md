@@ -57,6 +57,11 @@
 | ipykernel | Jupyter 노트북을 처음 실행할 때 ipykernel 설치 창이 뜸 → pip 접속이 필요하므로 `[확인 필요: 사내 pip 저장소/프록시]` 표시 |
 | `pc_setup.ipynb` | 제목을 "셋팅 (Jupyter 노트북)"으로. 1단계를 "Python·VS Code 확장 확인"으로 넓혀 `code --list-extensions --show-versions`로 Python·Jupyter 확장 버전을 확인. 최종 점검표에 "VS Code 확장" 항목 추가 |
 
+| (추가) 설명 상자 | "Python 확장만 설치하면 안 되나요?" 상자는 사용자 요청으로 삭제 |
+| (추가) ③ 순서 | 0단계 ▶ → (처음 실행 때) ipykernel 설치 창 → 0단계 결과 → 1단계 ▶ 순서로 바로잡음. 커널 목록에 Python이 없으면 VS Code 재시작 안내 추가 |
+| (추가) 터미널 확인 | `python --version`에서 아무것도 안 나오거나 Microsoft Store가 열리면 PATH 미체크 → 재설치 안내 추가 |
+| (추가) 노트북 1단계 | `code` 명령이 PATH에 없어도 `~/.vscode/extensions/extensions.json`으로 확장을 확인하도록 보강 |
+
 검증: Chrome 헤드리스로 캡처해 확인. 노트북 1단계는 개발 PC에서 실행해 확장이 없을 때 ❌, 확장 목록이 있을 때 ✅ 버전 표시를 확인.
 
 ## 블록 2. PC 환경 셋팅 (2026-10-22, 진행 중)
