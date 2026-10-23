@@ -175,6 +175,7 @@ button.copy:hover { background: rgba(255,255,255,.15); }
   <a href="#setup">2. PC 환경 셋팅 (20분)</a>
   <a class="lv2" href="#setup-nb">Jupyter 노트북 사용법</a>
   <a class="lv2" href="#setup-claude">Claude Code 첫 실행</a>
+  <a class="lv2" href="#setup-skill">Skill 설치</a>
   <a class="lv2" href="#setup-env">.env 설정</a>
   <a class="lv2" href="#setup-trouble">막혔을 때</a>
   <a href="#s1">3-1. 1교시 AI 체험 (50분)</a>
@@ -377,12 +378,12 @@ code --list-extensions --show-versions</div></div>
   <p>사전 안내 시간에 열어 둔 셋팅용 Jupyter 노트북 <code>pc_setup.ipynb</code>에서 <b>2단계부터</b> ▶ 버튼을 누르며 따라갑니다. (0·1단계 설치 확인은 사전 안내 시간에 끝냈습니다.) Claude Code는 <b>VS Code 터미널</b>에서 실행합니다.</p>
   <div class="table-wrap">
   <table>
-    <tr><th>시간</th><th>단계</th><th>내용</th></tr>
-    <tr><td class="time">09:30–09:35</td><td>2–7단계</td><td>사전 배포·추가 도구 확인: Windows 11, VS Code, Claude Code, Bedrock 설정, Python 패키지, Node.js (▶ 차례로 실행)</td></tr>
-    <tr><td class="time">09:35–09:40</td><td>8단계</td><td><b>Claude Code 첫 실행</b>과 실습 폴더 <code>ax-traning</code> 만들기</td></tr>
-    <tr><td class="time">09:40–09:42</td><td>9단계</td><td>실습용 Skill 설치</td></tr>
-    <tr><td class="time">09:42–09:46</td><td>10단계</td><td><b>.env 설정</b>: Claude Code가 빈 파일을 만들고, 키는 직접 붙여 넣기</td></tr>
-    <tr><td class="time">09:46–09:50</td><td>11–14단계</td><td>연결 테스트(조회만): Gateway, Splunk, 내 일정 → 최종 점검표 (모두 ✅인지)</td></tr>
+    <tr><th>시간</th><th>내용</th></tr>
+    <tr><td class="time">09:30–09:35</td><td>사전 배포·추가 도구 확인: Windows 11, VS Code, Claude Code, Bedrock 설정, Python 패키지, Node.js (▶ 차례로 실행)</td></tr>
+    <tr><td class="time">09:35–09:40</td><td><b>Claude Code 첫 실행</b>과 실습 폴더 <code>ax-training</code> 만들기</td></tr>
+    <tr><td class="time">09:40–09:42</td><td>실습용 Skill 설치와 Claude Code 다시 켜기</td></tr>
+    <tr><td class="time">09:42–09:46</td><td><b>.env 설정</b>: Claude Code가 빈 파일을 만들고, 키는 직접 붙여 넣기</td></tr>
+    <tr><td class="time">09:46–09:50</td><td>연결 테스트(조회만): Gateway, Splunk, 내 일정 → 최종 점검표 (모두 ✅인지)</td></tr>
   </table>
   </div>
 
@@ -390,7 +391,6 @@ code --list-extensions --show-versions</div></div>
   <div class="two">
     <div>
       <ol class="steps">
-        <li>사전 안내 시간에 열어 둔 <code>pc_setup.ipynb</code>로 돌아갑니다. (닫았다면 <b>파일 → 파일 열기</b>로 다시 열고 0단계부터 실행합니다.)</li>
         <li>회색 칸 왼쪽의 <b>▶</b>를 누릅니다. (또는 <code>Shift + Enter</code>)</li>
         <li>결과를 보고 다음 칸으로 넘어갑니다.</li>
       </ol>
@@ -404,25 +404,33 @@ code --list-extensions --show-versions</div></div>
       </table>
     </div>
   </div>
-  <div class="box hint"><div class="box-title">💡 안심하세요</div><p>어떤 칸이든 여러 번 실행해도 괜찮습니다. 이미 된 것은 "확인"만 하고 넘어갑니다. 같은 ❌가 두 번 나오면 손을 들어 보조강사를 부르세요.</p></div>
 
   <h3 id="setup-claude">Claude Code 첫 실행 (8단계)</h3>
-  <p>VS Code 메뉴 <b>터미널 → 새 터미널</b>(<code>Ctrl + `</code>)을 열고 한 줄씩 입력합니다.</p>
+  <p>VS Code 메뉴 <b>터미널 → 새 터미널</b>(<code>Ctrl + Shift + `</code>)을 열고 한 줄씩 입력합니다.</p>
   <div class="term"><span class="dim"># 기본 폴더로 이동 → 실습 폴더 만들기 → 들어가기 → Claude Code 실행</span>
 cd ~
-mkdir ax-traning
-cd ax-traning
+mkdir ax-training
+cd ax-training
 claude</div>
   <ol class="steps">
     <li><code>mkdir</code>에서 "이미 있음" 오류가 나오면 무시하고 다음 줄로 넘어갑니다.</li>
     <li>처음 실행하면 화면 색상(테마) 같은 설정을 묻습니다 → <b>Enter</b>로 기본값을 고릅니다.</li>
     <li>"이 폴더를 믿을지" 묻는 화면 → <b>Yes</b></li>
     <li><code>안녕! 너는 무엇을 도와줄 수 있어?</code>를 입력해 대답이 오면 성공입니다.</li>
+    <li>Jupyter 노트북 8단계를 실행합니다. 실습 폴더를 확인하고, Claude Code가 <code>.env</code>를 읽지 못하게 막는 설정을 만듭니다.</li>
   </ol>
   <div class="box note"><div class="box-title">왜 실습 폴더가 필요한가요?</div>
     <p>Claude Code는 <b>실행한 폴더를 작업 공간</b>으로 씁니다. 오늘 만드는 <code>.env</code>와 2교시에 저장할 프롬프트가 모두 이 폴더에 쌓여서, 내일도 다시 쓸 수 있습니다.</p>
     <p class="small">기본 폴더 위치: <span class="todo">[확인 필요: 기본 폴더 위치]</span></p>
   </div>
+
+  <h3 id="setup-skill">실습용 Skill 설치 (9단계)</h3>
+  <p>Skill은 Claude Code에 넣어 두는 업무 설명서입니다. 사내 Model/MCP Gateway를 쉽게 쓰게 해 줍니다.</p>
+  <ol class="steps">
+    <li>Jupyter 노트북 9단계를 실행해 <b>✅ Skill 설치됨</b>이 나오는지 확인합니다.</li>
+    <li>Claude Code 화면에서 <code>/exit</code>를 입력해 끄고, 다시 <code>claude</code>를 입력해 켭니다. 새 Skill과 8단계 설정은 <b>다시 켜야 적용</b>됩니다.</li>
+    <li><code>사용할 수 있는 Skill 목록 알려줘</code>를 입력해 Skill 이름이 보이면 성공입니다.</li>
+  </ol>
 
   <h3 id="setup-env">.env 설정 (10단계)</h3>
   <p><code>.env</code>는 비밀값(Virtual Key: 사내 Gateway 이용 열쇠)을 적어 두는 설정 파일입니다. <b>Claude Code는 빈 칸만 만들고, 키는 내가 직접 넣습니다.</b></p>
@@ -432,18 +440,18 @@ claude</div>
 <span class="todo">[확인 필요: Virtual Key 변수명]</span>=</pre></div>
   <h4>② 키 붙여 넣기</h4>
   <ol class="steps">
-    <li>터미널 오른쪽 위의 <b>+</b>로 새 터미널을 열고 <code>code $HOME\ax-traning\.env</code>를 입력합니다.</li>
+    <li>터미널 오른쪽 위의 <b>+</b>로 새 터미널을 열고 <code>code $HOME\ax-training\.env</code>를 입력합니다.</li>
     <li>메일로 받은 Virtual Key를 <code>=</code> 바로 뒤에 붙여 넣고 <b>Ctrl + S</b>로 저장합니다. <span class="todo">[확인 필요: Virtual Key 전달 메일 제목·발송 시점]</span></li>
     <li>Jupyter 노트북 10단계를 실행해 <b>✅ Virtual Key 입력됨 (●●●● N자)</b>가 나오는지 확인합니다.</li>
   </ol>
   <div class="box rule"><div class="box-title">🔒 키는 대화창에 붙여 넣지 않습니다</div>
-    <p>Claude Code 대화창에 붙여 넣은 내용은 AI 모델로 전달되고 PC 기록에도 남습니다. 키는 <b>VS Code 편집기에서 .env 파일에만</b> 넣고, 실습 폴더는 다른 사람과 공유하지 않습니다.</p></div>
+    <p>Claude Code 대화창에 붙여 넣은 내용은 AI 모델로 전달되고 PC 기록에도 남습니다. 키는 <b>VS Code 편집기에서 .env 파일에만</b> 넣고, 실습 폴더는 다른 사람과 공유하지 않습니다.</p>
+    <p>Claude Code는 8단계 설정 때문에 <code>.env</code>를 읽지 못합니다. 그래도 <code>.env</code>를 열어 보거나 출력하겠다고 물으면 <b>No</b>를 고릅니다.</p></div>
 
   <h3 id="setup-trouble">자주 막히는 곳</h3>
   <div class="table-wrap">
   <table>
     <tr><th>증상</th><th>원인</th><th>해결</th></tr>
-    <tr><td>커널 목록에 Python이 없음</td><td>Python이나 확장 설치 직후라 VS Code가 아직 모름</td><td>VS Code를 완전히 닫았다 다시 열기</td></tr>
     <tr><td><code>claude</code>를 입력하면 "인식할 수 없음"</td><td>PATH(명령을 찾는 경로)에 없음</td><td>터미널 새로 열기 → 그래도 안 되면 보조강사</td></tr>
     <tr><td>Claude Code가 대답하지 않음</td><td>Bedrock 연결 설정 문제</td><td>화면 그대로 두고 보조강사</td></tr>
     <tr><td>10단계에서 "값이 비어 있습니다"</td><td>붙여 넣고 저장하지 않음</td><td>.env 탭에서 <code>Ctrl + S</code></td></tr>
@@ -788,7 +796,7 @@ prompts 폴더에 &#x27;[파일 이름: 예) 주간_VPN_리포트].md&#x27; 파�
     <div class="result">
       <div class="result-head"><span>🧑‍🏫 강사의 결과: 저장된 파일</span><span class="tag">예시 화면</span></div>
       <div class="result-body">
-        <div class="term"><span class="dim"># ax-traning\prompts\주간_VPN_리포트.md</span>
+        <div class="term"><span class="dim"># ax-training\prompts\주간_VPN_리포트.md</span>
 나는 VPN 운영 담당이야.
 Splunk에서 [기간] 동안의 VPN 접속 로그를 조회해서 아래 형식으로 정리해줘.
 - 일자별 접속 건수 추이, [비교 기준] 대비 증감, 눈에 띄는 계정 상위 5개
