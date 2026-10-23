@@ -61,6 +61,7 @@
 | (추가) ③ 순서 | 0단계 ▶ → (처음 실행 때) ipykernel 설치 창 → 0단계 결과 → 1단계 ▶ 순서로 바로잡음. 커널 목록에 Python이 없으면 VS Code 재시작 안내 추가 |
 | (추가) 터미널 확인 | `python --version`에서 아무것도 안 나오거나 Microsoft Store가 열리면 PATH 미체크 → 재설치 안내 추가 |
 | (추가) 노트북 1단계 | `code` 명령이 PATH에 없어도 `~/.vscode/extensions/extensions.json`으로 확장을 확인하도록 보강 |
+| (추가) 화면 언어 | 수강생 VS Code는 한국어 → 확장 화면 예시를 한국어로(확장: MARKETPLACE, 설치 버튼). Python 설치 화면은 설치 프로그램이 영어라서 영어 유지 |
 
 검증: Chrome 헤드리스로 캡처해 확인. 노트북 1단계는 개발 PC에서 실행해 확장이 없을 때 ❌, 확장 목록이 있을 때 ✅ 버전 표시를 확인.
 
