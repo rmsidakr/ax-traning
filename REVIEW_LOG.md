@@ -245,8 +245,7 @@
 - 가짜 시험(PC 변경 없음, msiexec만 가로챔): 다운로드 폴더에 설치파일·승인 예 → ✅ / 바탕화면에 설치파일·승인 아니요 → ❌와 직접 설치 안내 / 설치파일 없음 → 공식 사이트에서 받아 지문 확인 후 설치 → ✅
 - 실제 시험(사용자 동의): 이 PC의 Node.js 24.20.0을 제거한 뒤, 빈 홈 폴더의 다운로드에 설치파일만 둔 상태로 노트북 점검 코드의 step(6)을 그대로 실행
   - `msiexec /i … /passive /norestart`로 설치, 21초, "새로 설치했습니다 → VS Code 다시 열기" 안내 뒤 ✅ Node.js v24.22.1. 같은 칸을 다시 ▶해도 ✅
-  - 시스템 PATH에 `C:\Program Files
-odejs\`가 들어가 새 터미널에서 `node --version` v24.22.1, `npm --version` 11.19.1
+  - 시스템 PATH에 `C:\Program Files\nodejs\`가 들어가 새 터미널에서 `node --version` v24.22.1, `npm --version` 11.19.1
   - 이 PC의 Node.js는 이제 24.22.1
 - 확인 못 함: VS Code 노트북 화면 안에서의 실행(같은 코드를 Python으로 직접 실행함), Windows 11·사내 보안 정책에서 설치가 막히는지(리허설)
 
