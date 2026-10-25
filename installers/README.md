@@ -9,4 +9,4 @@
 
 - 두 파일 모두 공식 배포처에서 2026-10-25에 받았고, 배포자 디지털 서명(Python Software Foundation, OpenJS Foundation)이 유효합니다. Node.js는 공식 `SHASUMS256.txt`의 값과도 같습니다.
 - Python 3.12는 3.12.10이 Windows 설치파일이 나온 마지막 버전입니다. 그 뒤 3.12.x는 소스 코드로만 나옵니다.
-- 설치 방법은 교안 "1. 사전 안내 → Python과 Jupyter 확장 설치"에 있습니다. 설치 확인은 셋팅 노트북 1단계(Python)와 7단계(Node.js)에서 합니다.
+- 설치 방법은 교안 "1. 사전 안내 → Python과 Jupyter 확장 설치"에 있습니다. 설치 확인은 셋팅 노트북 1단계(Python)와 6단계(Node.js)에서 합니다.

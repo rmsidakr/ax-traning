@@ -22,7 +22,7 @@ ENV_URL = "[확인 필요: Gateway 주소]"
 ENV_KEY_NAME = "[확인 필요: Virtual Key 변수명]"
 # ─────────────────────────────────────────────────────────
 
-STEP_ORDER = ["준비", "Python", "VS Code 확장", "Windows 11", "VS Code", "Claude Code", "Bedrock 설정", "Python 패키지",
+STEP_ORDER = ["준비", "Python", "VS Code 확장", "VS Code", "Claude Code", "Bedrock 설정", "Python 패키지",
               "Node.js", "실습 폴더", "Skill", ".env", "Gateway 연결", "Splunk 조회", "일정 조회"]
 MARK = {True: "✅", False: "❌", None: "⚠️"}
 RESULTS = globals().get("RESULTS", {})
@@ -96,16 +96,8 @@ def _step1():
              "VS Code 왼쪽 확장 아이콘(Ctrl + Shift + X)에서 Microsoft의 확장을 설치하고 이 칸의 ▶를 다시 누르세요.")
 
 
-# 2단계: Windows 11 확인 (빌드 번호 22000 이상이면 Windows 11)
+# 2단계: VS Code 확인
 def _step2():
-    build = sys.getwindowsversion().build if sys.platform == "win32" else 0
-    show("Windows 11", build >= 22000,
-         f"Windows 11 (빌드 {build})" if build >= 22000 else f"Windows 11이 아닙니다 (빌드 {build or '확인 불가'})",
-         "사전 배포 기준과 다릅니다. 보조강사에게 알리고 다음 단계로 넘어가세요.")
-
-
-# 3단계: VS Code 확인
-def _step3():
     path = shutil.which("code")
     if path:
         ok, out = run([path, "--version"])
@@ -116,8 +108,8 @@ def _step3():
              "VS Code를 완전히 닫았다가 다시 열고 0단계부터 다시 ▶를 누르세요. 그래도 ❌이면 보조강사를 불러 주세요.")
 
 
-# 4단계: Claude Code 확인
-def _step4():
+# 3단계: Claude Code 확인
+def _step3():
     path = shutil.which("claude")
     fallback = Path.home() / ".local" / "bin" / "claude.exe"
     if path:
@@ -132,8 +124,8 @@ def _step4():
              "보조강사를 불러 주세요. [확인 필요: Claude Code 설치 방법]")
 
 
-# 5단계: Bedrock 연결 설정 확인 (환경변수 → Claude Code 설정 파일 순서로 찾는다)
-def _step5():
+# 4단계: Bedrock 연결 설정 확인 (환경변수 → Claude Code 설정 파일 순서로 찾는다)
+def _step4():
     # [확인 필요: Bedrock 연결 확인 방법] 사내 표준 방식에 맞게 조정
     keys = ("CLAUDE_CODE_USE_BEDROCK", "AWS_REGION")
     found = {k: (os.environ[k], "환경변수") for k in keys if os.environ.get(k)}
@@ -152,11 +144,11 @@ def _step5():
         show("Bedrock 설정", True, f"Bedrock 사용 설정 확인 ({where}), 리전: {region}")
     else:
         show("Bedrock 설정", None, "이 방법으로는 Bedrock 설정을 찾지 못했습니다.",
-             "사내 설정 방식이 다를 수 있습니다. 8단계에서 Claude Code가 대답하면 정상입니다.")
+             "사내 설정 방식이 다를 수 있습니다. 7단계에서 Claude Code가 대답하면 정상입니다.")
 
 
-# 6단계: Python 패키지 확인 → 없으면 설치 → 다시 확인
-def _step6():
+# 5단계: Python 패키지 확인 → 없으면 설치 → 다시 확인
+def _step5():
     from importlib import metadata
 
     def missing_packages():
@@ -183,10 +175,10 @@ def _step6():
              "위 오류를 보조강사에게 보여 주세요. [확인 필요: 사내 pip 저장소/프록시]")
 
 
-# 7단계: Node.js 확인 → 없으면 설치 → 다시 확인
+# 6단계: Node.js 확인 → 없으면 설치 → 다시 확인
 #        설치파일은 메일로 받은 파일을 다운로드·바탕화면·노트북 폴더에서 찾고, 없으면 공식 사이트에서 받는다.
 #        어느 쪽이든 SHA-256 지문이 배포 파일과 같을 때만 설치한다.
-def _step7():
+def _step6():
     import hashlib, tempfile, urllib.request
 
     def node_version():
@@ -239,8 +231,8 @@ def _step7():
          "그래도 ❌이면 보조강사를 불러 주세요.")
 
 
-# 8단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
-def _step8():
+# 7단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
+def _step7():
     #        + Claude Code가 .env(키 파일)를 읽지 못하게 실습 폴더 설정에 읽기 금지 규칙을 넣는다
     ENV_DENY = ["Read(./.env)", "Read(./.env.*)"]
 
@@ -261,8 +253,8 @@ def _step8():
                  "화면을 그대로 두고 보조강사를 불러 주세요.")
 
 
-# 9단계: Skill 확인 → 없으면 설치(배포 폴더 복사) → 다시 확인
-def _step9():
+# 8단계: Skill 확인 → 없으면 설치(배포 폴더 복사) → 다시 확인
+def _step8():
     if is_placeholder(SKILL_NAME):
         show("Skill", None, "Skill 이름이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
     else:
@@ -280,15 +272,15 @@ def _step9():
              "보조강사를 불러 주세요. [확인 필요: Skill 설치 방법]")
 
 
-# 10단계: .env 만들기·확인 (키 자리를 비운 파일은 노트북이 만들고, 키는 사람이 직접 넣는다. 키 값은 출력하지 않는다)
-#         Claude Code는 8단계 설정 때문에 .env를 읽지도 쓰지도 못한다
-def _step10():
+# 9단계: .env 만들기·확인 (키 자리를 비운 파일은 노트북이 만들고, 키는 사람이 직접 넣는다. 키 값은 출력하지 않는다)
+#         Claude Code는 7단계 설정 때문에 .env를 읽지도 쓰지도 못한다
+def _step9():
     env_path = PRACTICE_DIR / ".env"
     if is_placeholder(ENV_KEY_NAME) or is_placeholder(ENV_URL_NAME) or is_placeholder(ENV_URL):
         show(".env", None, ".env 변수 이름이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
         return
     if not PRACTICE_DIR.is_dir():
-        show(".env", False, f"실습 폴더가 없습니다: {PRACTICE_DIR}", "8단계를 먼저 ✅로 만드세요.")
+        show(".env", False, f"실습 폴더가 없습니다: {PRACTICE_DIR}", "7단계를 먼저 ✅로 만드세요.")
         return
     if not env_path.exists():
         env_path.write_text(f"{ENV_URL_NAME}={ENV_URL}\n{ENV_KEY_NAME}=\n", encoding="utf-8")
@@ -305,12 +297,12 @@ def _step10():
         show(".env", True, f"Virtual Key 입력됨 (●●●● {len(key)}자) / Gateway 주소: {url}")
 
 
-# 11단계: Gateway 주소까지 네트워크가 닿는지 확인 (응답 코드와 상관없이 응답이 오면 정상)
-def _step11():
+# 10단계: Gateway 주소까지 네트워크가 닿는지 확인 (응답 코드와 상관없이 응답이 오면 정상)
+def _step10():
     import urllib.request, urllib.error
     url = "" if is_placeholder(ENV_URL_NAME) else read_env(PRACTICE_DIR / ".env").get(ENV_URL_NAME, "")
     if not url:
-        show("Gateway 연결", None, "Gateway 주소가 없어 확인을 건너뜁니다.", "10단계를 먼저 ✅로 만드세요.")
+        show("Gateway 연결", None, "Gateway 주소가 없어 확인을 건너뜁니다.", "9단계를 먼저 ✅로 만드세요.")
     else:
         try:
             with urllib.request.urlopen(url, timeout=10) as r:
@@ -326,22 +318,22 @@ def _step11():
             show("Gateway 연결", False, f"Gateway 확인 중 오류: {e}", "보조강사를 불러 주세요.")
 
 
-# 12단계: Splunk 조회 결과 확인 (직접 보고 y/n 입력)
-def _step12():
+# 11단계: Splunk 조회 결과 확인 (직접 보고 y/n 입력)
+def _step11():
     answer = input("Claude Code가 Splunk 조회 결과(건수)를 보여 주었나요? (y/n): ").strip().lower()
     show("Splunk 조회", answer.startswith("y"), "Splunk 조회 성공" if answer.startswith("y") else "Splunk 조회 실패",
          "Claude Code 화면의 오류를 그대로 두고 보조강사를 불러 주세요.")
 
 
-# 13단계: 일정 조회 결과 확인 (직접 보고 y/n 입력)
-def _step13():
+# 12단계: 일정 조회 결과 확인 (직접 보고 y/n 입력)
+def _step12():
     answer = input("Claude Code가 오늘 내 일정(또는 '일정 없음')을 보여 주었나요? (y/n): ").strip().lower()
     show("일정 조회", answer.startswith("y"), "일정 조회 성공" if answer.startswith("y") else "일정 조회 실패",
          "Claude Code 화면의 오류를 그대로 두고 보조강사를 불러 주세요.")
 
 
-# 14단계: 최종 점검표
-def _step14():
+# 13단계: 최종 점검표
+def _step13():
     print("=== 셋팅 결과 요약 ===")
     count = {True: 0, False: 0, None: 0}
     for step in STEP_ORDER:
