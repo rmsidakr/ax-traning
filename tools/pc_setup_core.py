@@ -13,7 +13,7 @@ SKILL_NAME = "[확인 필요: Skill 이름]"
 SKILL_SOURCE = r"[확인 필요: Skill 배포 위치]"           # 배포받은 Skill 폴더 경로
 SKILL_INSTALL_DIR = Path.home() / ".claude" / "skills"  # Skill 설치 위치
 REQUIRED_PACKAGES = []                                   # [확인 필요: Skill에 필요한 Python 패키지] 예: ["requests"]
-NEED_NODE = None                                         # [확인 필요: Node.js 필요 여부] True 또는 False
+NEED_NODE = True                                         # 실습에 Node.js가 필요함
 ENV_URL_NAME = "[확인 필요: Gateway 주소 변수명]"
 ENV_URL = "[확인 필요: Gateway 주소]"
 ENV_KEY_NAME = "[확인 필요: Virtual Key 변수명]"
@@ -206,6 +206,8 @@ def _step7():
             else:
                 print("winget(윈도우 설치 도구)을 찾지 못했습니다.")
             ver = node_version()
+            if ver:
+                print("👉 Node.js를 새로 설치했습니다. 터미널이 알아보도록 VS Code를 완전히 닫았다 다시 열고 0단계부터 다시 ▶를 누르세요.")
         show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 아직 없습니다.",
              "VS Code를 완전히 닫았다 다시 열고 0단계부터 다시 ▶를 누르세요. 그래도 ❌이면 보조강사를 불러 주세요.")
 

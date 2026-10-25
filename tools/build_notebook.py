@@ -10,7 +10,25 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NB = os.path.join(ROOT, "pc_setup.ipynb")
 CORE = os.path.join(ROOT, "tools", "pc_setup_core.py")
 
-LOADER = '''# 0단계: 점검 도구 불러오기 (코드는 읽지 않아도 됩니다)
+# 단계 칸에 보일 설명(무엇을 확인하는지). 점검 코드는 pc_setup_core.py의 _step번호 함수
+STEP_NOTES = {
+    1: "Python이 3.12인지, VS Code에 Python·Jupyter 확장이 설치돼 있는지 확인합니다",
+    2: "이 PC가 Windows 11인지 확인합니다",
+    3: "VS Code가 설치돼 있는지, 버전이 무엇인지 확인합니다",
+    4: "Claude Code가 설치돼 있는지, 버전이 무엇인지 확인합니다",
+    5: "Claude Code가 사내 AI(AWS Bedrock)를 쓰도록 설정돼 있는지 확인합니다",
+    6: "실습에 필요한 Python 패키지가 있는지 확인하고, 없으면 설치합니다",
+    7: "Node.js가 설치돼 있는지 확인하고, 없으면 설치합니다",
+    8: "실습 폴더(ax-training)가 있는지 확인하고, Claude Code가 .env를 읽지 못하게 막는 설정을 만듭니다",
+    9: "실습용 Skill이 설치돼 있는지 확인하고, 없으면 설치합니다",
+    10: ".env가 없으면 키 자리를 비운 파일을 만들고, Virtual Key가 들어갔는지 확인합니다 (키 내용은 화면에 나오지 않습니다)",
+    11: "내 PC에서 사내 Gateway 주소까지 연결되는지 확인합니다",
+    12: "Claude Code에서 Splunk 조회가 됐는지 묻습니다 (위쪽 입력창에 y 또는 n)",
+    13: "Claude Code에서 내 일정 조회가 됐는지 묻습니다 (위쪽 입력창에 y 또는 n)",
+    14: "지금까지의 결과를 한 표로 모아 보여 줍니다",
+}
+
+LOADER = '''# 0단계: 점검 도구를 불러오고, 노트북이 실행되는지 확인합니다 (아래 코드는 읽지 않아도 됩니다)
 import json
 exec(json.load(open(globals().get("__vsc_ipynb_file__", "pc_setup.ipynb"), encoding="utf-8"))["metadata"]["ax_setup_code"])
 step(0)'''
@@ -28,7 +46,7 @@ n = 0
 for cell in nb["cells"]:
     if cell["cell_type"] != "code":
         continue
-    cell["source"] = lines(LOADER if n == 0 else f"step({n})")
+    cell["source"] = lines(LOADER if n == 0 else f"# {n}단계: {STEP_NOTES[n]}\nstep({n})")
     cell["metadata"] = {}
     cell["outputs"], cell["execution_count"] = [], None
     n += 1
