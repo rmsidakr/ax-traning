@@ -44,6 +44,7 @@ nav a.lv2 { padding-left: 24px; color: var(--muted); font-size: 15px; }
 nav a:hover { background: var(--accent-soft); }
 nav a.active { background: var(--accent); color: #fff; }
 main { margin-left: var(--nav-w); padding: 40px 48px 120px; max-width: calc(var(--nav-w) + 1150px); }
+#wrap { min-height: calc(100vh - 16px); } /* 마지막 블록도 목차에서 누르면 맨 위로 오게 */
 @media (max-width: 900px) {
   nav { position: static; width: auto; border-right: 0; border-bottom: 1px solid var(--line); }
   main { margin-left: 0; padding: 24px 16px 80px; }
