@@ -266,7 +266,7 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
   <div class="rules">
     <div class="r"><div class="n">1</div><b>발송은 나에게만</b>AI에게 메일/메신저 발송을 요청할때, 수신인은 꼭 본인 계정으로 지정해주세요.</div>
     <div class="r"><div class="n">2</div><b>권한 확인창은 읽고 허용</b>Claude Code가 "실행해도 될까요?"라고 물으면 받는 사람, 일정 제목을 읽고 고릅니다. 발송·삭제에는 <b>"항상 허용"을 누르지 않습니다.</b></div>
-    <div class="r"><div class="n">3</div><b>실습 일정은 [AX실습]</b>실습 일정 제목은 <code>[AX실습]</code>으로 시작합니다. <b>내 일정만</b> 다루고, 실습이 끝나면 목록을 확인한 뒤 삭제합니다.</div>
+    <div class="r"><div class="n">3</div><b>키는 .env에만</b>메일로 받은 Virtual Key는 <code>.env</code> 파일에만 붙여 넣습니다. 채팅창에 붙여 넣거나 다른 사람에게 보여 주지 않습니다. Claude Code가 <code>.env</code>를 읽겠다고 물으면 <b>No</b>를 고릅니다.</div>
   </div>
 
   <h3>AI 활용 경험 소개 <span class="badge ppt">강사 PPTX</span></h3>
@@ -448,7 +448,7 @@ claude</div>
     <li>메일로 받은 Virtual Key를 <code>=</code> 바로 뒤에 붙여 넣고 <b>Ctrl + S</b>로 저장합니다. <span class="todo">[확인 필요: Virtual Key 전달 메일 제목·발송 시점]</span></li>
     <li>Jupyter 노트북 10단계를 실행해 <b>✅ Virtual Key 입력됨 (●●●● N자)</b>가 나오는지 확인합니다.</li>
   </ol>
-  <div class="box rule"><div class="box-title">🔒 키는 대화창에 붙여 넣지 않습니다</div>
+  <div class="box rule"><div class="box-title">🔒 안전 규칙 3: 키는 .env에만</div>
     <p>Claude Code 대화창에 붙여 넣은 내용은 AI 모델로 전달되고 PC 기록에도 남습니다. 키는 <b>VS Code 편집기에서 .env 파일에만</b> 넣고, 실습 폴더는 다른 사람과 공유하지 않습니다.</p>
     <p>Claude Code는 8단계 설정 때문에 <code>.env</code>를 읽지 못합니다. 그래도 <code>.env</code>를 열어 보거나 출력하겠다고 물으면 <b>No</b>를 고릅니다.</p></div>
 
