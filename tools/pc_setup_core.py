@@ -180,7 +180,7 @@ def _step6():
              "위 오류를 보조강사에게 보여 주세요. [확인 필요: 사내 pip 저장소/프록시]")
 
 
-# 7단계: Node.js 확인 → 없으면 설치(winget) → 다시 확인
+# 7단계: Node.js 확인 (설치는 메일로 받은 설치파일로 사람이 한다)
 def _step7():
     def node_version():
         for p in (shutil.which("node"), r"C:\Program Files\nodejs\node.exe"):
@@ -196,20 +196,8 @@ def _step7():
         show("Node.js", True, "Node.js는 이번 실습에 필요 없습니다(건너뜀).")
     else:
         ver = node_version()
-        if not ver:
-            winget = shutil.which("winget")
-            if winget:
-                print("Node.js 설치 중 (몇 분 걸릴 수 있습니다) ...")
-                ok, out = run([winget, "install", "--id", "OpenJS.NodeJS.LTS", "-e", "--silent",
-                               "--accept-package-agreements", "--accept-source-agreements"], timeout=900)
-                print(out[-1500:])
-            else:
-                print("winget(윈도우 설치 도구)을 찾지 못했습니다.")
-            ver = node_version()
-            if ver:
-                print("👉 Node.js를 새로 설치했습니다. 터미널이 알아보도록 VS Code를 완전히 닫았다 다시 열고 0단계부터 다시 ▶를 누르세요.")
-        show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 아직 없습니다.",
-             "VS Code를 완전히 닫았다 다시 열고 0단계부터 다시 ▶를 누르세요. 그래도 ❌이면 보조강사를 불러 주세요.")
+        show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 설치돼 있지 않습니다.",
+             "메일로 받은 node-v24.22.1-x64.msi를 더블클릭해 설치하고, VS Code를 완전히 닫았다 다시 열어 0단계부터 다시 ▶를 누르세요.")
 
 
 # 8단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
