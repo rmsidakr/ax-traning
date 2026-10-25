@@ -1,7 +1,7 @@
 """tools/pc_setup_core.py를 pc_setup.ipynb에 넣는다.
 
 - 점검 코드는 노트북 metadata["ax_setup_code"]에 들어가 교육생 화면에 보이지 않는다.
-- 0단계 칸은 그 코드를 불러오고, 1~13단계 칸은 step(번호) 한 줄만 둔다.
+- 0단계 칸은 그 코드를 불러오고, 1~12단계 칸은 step(번호) 한 줄만 둔다.
 사용법: python tools/build_notebook.py
 """
 import json, os
@@ -21,10 +21,9 @@ STEP_NOTES = {
     7: "실습 폴더(ax-training)가 있는지 확인하고, Claude Code가 .env를 읽지 못하게 막는 설정을 만듭니다",
     8: "실습용 Skill이 설치돼 있는지 확인하고, 없으면 설치합니다",
     9: ".env가 없으면 키 자리를 비운 파일을 만들고, Virtual Key가 들어갔는지 확인합니다 (키 내용은 화면에 나오지 않습니다)",
-    10: "내 PC에서 사내 Gateway 주소까지 연결되는지 확인합니다",
-    11: "Claude Code에서 Splunk 조회가 됐는지 묻습니다 (위쪽 입력창에 y 또는 n)",
-    12: "Claude Code에서 내 일정 조회가 됐는지 묻습니다 (위쪽 입력창에 y 또는 n)",
-    13: "지금까지의 결과를 한 표로 모아 보여 줍니다",
+    10: "Splunk 조회 프롬프트를 복사합니다 (Claude Code에 붙여 넣고 결과를 확인)",
+    11: "일정 조회 프롬프트를 복사합니다 (Claude Code에 붙여 넣고 결과를 확인)",
+    12: "0~9단계 결과를 한 표로 모아 보여 줍니다",
 }
 
 LOADER = '''# 0단계: 점검 도구를 불러오고, 노트북이 실행되는지 확인합니다 (아래 코드는 읽지 않아도 됩니다)
@@ -49,7 +48,7 @@ for cell in nb["cells"]:
     cell["metadata"] = {}
     cell["outputs"], cell["execution_count"] = [], None
     n += 1
-assert n == 14, n
+assert n == 13, n
 
 text = json.dumps(nb, ensure_ascii=False, indent=1) + "\n"
 open(NB, "w", encoding="utf-8", newline="").write(text.replace("\n", "\r\n"))

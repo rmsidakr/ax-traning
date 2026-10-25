@@ -23,7 +23,7 @@ ENV_KEY_NAME = "[확인 필요: Virtual Key 변수명]"
 # ─────────────────────────────────────────────────────────
 
 STEP_ORDER = ["준비", "Python", "VS Code 확장", "VS Code", "Claude Code", "Bedrock 설정", "Python 패키지",
-              "Node.js", "실습 폴더", "Skill", ".env", "Gateway 연결", "Splunk 조회", "일정 조회"]
+              "Node.js", "실습 폴더", "Skill", ".env"]
 MARK = {True: "✅", False: "❌", None: "⚠️"}
 RESULTS = globals().get("RESULTS", {})
 
@@ -297,43 +297,31 @@ def _step9():
         show(".env", True, f"Virtual Key 입력됨 (●●●● {len(key)}자) / Gateway 주소: {url}")
 
 
-# 10단계: Gateway 주소까지 네트워크가 닿는지 확인 (응답 코드와 상관없이 응답이 오면 정상)
+SPLUNK_PROMPT = "Splunk에서 최근 15분 동안 들어온 이벤트 건수만 알려줘. 조회만 하고 다른 작업은 하지 마."
+CALENDAR_PROMPT = "오늘 내 일정 목록만 조회해서 보여줘. 등록, 수정, 삭제는 하지 마."
+
+def copy_prompt(text):
+    # 프롬프트를 클립보드에 넣는다(Windows clip, UTF-16). 실패하면 직접 입력하도록 문장만 보여 준다
+    try:
+        subprocess.run(["clip"], input=text.encode("utf-16-le"), check=True, timeout=10)
+        print("📋 프롬프트를 복사했습니다. 아래 터미널의 Claude Code 입력창을 누르고 Ctrl + V → Enter")
+    except Exception:
+        print("👉 복사하지 못했습니다. 아래 문장을 Claude Code 입력창에 직접 입력하고 Enter")
+    print(f"   {text}")
+
+
+# 10단계: Splunk 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
 def _step10():
-    import urllib.request, urllib.error
-    url = "" if is_placeholder(ENV_URL_NAME) else read_env(PRACTICE_DIR / ".env").get(ENV_URL_NAME, "")
-    if not url:
-        show("Gateway 연결", None, "Gateway 주소가 없어 확인을 건너뜁니다.", "9단계를 먼저 ✅로 만드세요.")
-    else:
-        try:
-            with urllib.request.urlopen(url, timeout=10) as r:
-                show("Gateway 연결", True, f"Gateway에 연결됨 (응답 코드 {r.status})")
-        except urllib.error.HTTPError as e:
-            show("Gateway 연결", True, f"Gateway에 연결됨 (응답 코드 {e.code}: 주소까지는 정상적으로 닿았습니다)")
-        except urllib.error.URLError as e:
-            reason = str(e.reason)
-            hint = ("사내 인증서(SSL) 문제일 수 있습니다. 보조강사를 불러 주세요." if "CERTIFICATE" in reason.upper()
-                    else "주소 오타, 사내망 연결, 프록시 설정을 확인하세요. [확인 필요: 사내 프록시]")
-            show("Gateway 연결", False, f"Gateway에 연결하지 못했습니다: {reason}", hint)
-        except Exception as e:
-            show("Gateway 연결", False, f"Gateway 확인 중 오류: {e}", "보조강사를 불러 주세요.")
+    copy_prompt(SPLUNK_PROMPT)
 
 
-# 11단계: Splunk 조회 결과 확인 (직접 보고 y/n 입력)
+# 11단계: 일정 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
 def _step11():
-    answer = input("Claude Code가 Splunk 조회 결과(건수)를 보여 주었나요? (y/n): ").strip().lower()
-    show("Splunk 조회", answer.startswith("y"), "Splunk 조회 성공" if answer.startswith("y") else "Splunk 조회 실패",
-         "Claude Code 화면의 오류를 그대로 두고 보조강사를 불러 주세요.")
+    copy_prompt(CALENDAR_PROMPT)
 
 
-# 12단계: 일정 조회 결과 확인 (직접 보고 y/n 입력)
+# 12단계: 최종 점검표 (0~9단계. Splunk·일정 조회는 Claude Code 화면에서 확인한다)
 def _step12():
-    answer = input("Claude Code가 오늘 내 일정(또는 '일정 없음')을 보여 주었나요? (y/n): ").strip().lower()
-    show("일정 조회", answer.startswith("y"), "일정 조회 성공" if answer.startswith("y") else "일정 조회 실패",
-         "Claude Code 화면의 오류를 그대로 두고 보조강사를 불러 주세요.")
-
-
-# 13단계: 최종 점검표
-def _step13():
     print("=== 셋팅 결과 요약 ===")
     count = {True: 0, False: 0, None: 0}
     for step in STEP_ORDER:
@@ -348,6 +336,7 @@ def _step13():
         print("🎉 셋팅 완료!" + (" (⚠️ 항목은 강사 안내를 따르세요)" if count[None] else ""))
     else:
         print("❌ 또는 ⬜ 항목의 단계로 돌아가 ▶를 다시 누르세요. 같은 ❌가 반복되면 보조강사를 불러 주세요.")
+    print("Splunk·일정 조회(10·11단계)는 Claude Code 화면에 결과가 나왔으면 성공입니다.")
 
 
 def step(n):
