@@ -215,6 +215,7 @@ def _step6():
         return
 
     ver = node_version()
+    msi = None
     if not ver:
         msi = find_msi()
         if msi:
@@ -226,9 +227,12 @@ def _step6():
                 print("👉 Node.js를 새로 설치했습니다. 터미널이 알아보도록 VS Code를 완전히 닫았다 다시 열고 0단계부터 다시 ▶를 누르세요.")
             elif not ok:
                 print("   설치가 끝나지 않았습니다. 관리자 승인 창에서 '아니요'를 눌렀거나, 이 PC에서 설치가 막혀 있을 수 있습니다.")
-    show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 설치돼 있지 않습니다.",
-         f"메일로 받은 {NODE_MSI}를 더블클릭해 직접 설치하고, VS Code를 완전히 닫았다 다시 열어 0단계부터 다시 ▶를 누르세요. "
-         "그래도 ❌이면 보조강사를 불러 주세요.")
+    if msi:   # 설치파일은 있었는데 설치가 안 됨 → 다시 ▶하고 승인 창에서 '예'
+        hint = "같은 칸을 다시 ▶ → 관리자 승인 창에서 '예'를 누르세요. 그래도 ❌이면 보조강사를 불러 주세요."
+    else:     # 설치파일을 찾지도 받지도 못함
+        hint = (f"메일로 받은 {NODE_MSI}를 다운로드 폴더에 저장하고 같은 칸을 다시 ▶ 누르세요. "
+                "그래도 ❌이면 보조강사를 불러 주세요.")
+    show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 설치돼 있지 않습니다.", hint)
 
 
 # 7단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
