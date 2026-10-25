@@ -197,6 +197,14 @@
 - 확인: 노트북 0~13단계를 차례로 실행해 번호와 최종 점검표가 맞는지, 교안 목차 25개 링크 이동, .env 설정 화면
 - 이 기록의 위쪽 항목은 당시 번호(1~14단계) 그대로 둠
 
+## ipykernel 설치파일 묶음과 "노트북이 실행되지 않을 때" 해결책 (2026-10-25)
+
+- 사내망에서 pip 접속이 막혀 0단계의 ipykernel 설치가 실패하는 경우를 대비해, Python 3.12(Windows 64비트)용 ipykernel 7.4.0과 딸린 부품 29개를 `installers/ipykernel-py312-win64.zip`(13.8MB)으로 묶음. 교육생은 압축을 풀고 `install_ipykernel.bat`를 더블클릭
+- .bat는 py 런처 → 사용자 설치 위치 → 모든 사용자 설치 위치 순서로 Python 3.12를 찾고, `pip install --no-index --find-links wheels ipykernel`로 설치. 압축을 풀지 않고 실행하면 압축 풀기 안내를 보여 줌
+- 확인: 빈 가상환경에 인터넷 없이 설치 성공(ipykernel, zmq, tornado import), .bat의 정상·압축 미해제 경우 실행. 가장 긴 설치 경로가 교육생 PC 기준 약 208자로 Windows 260자 제한 안
+- 사용자 지적: 교안의 "Jupyter 노트북이 실행되지 않으면 터미널로 확인" 상자에 최종 해결책이 없었음 → "Jupyter 노트북이 실행되지 않을 때"로 바꾸고 증상별 해결 표(확장 누락, 제한 모드, 커널 목록에 3.12 없음, ipykernel 설치 실패)와 터미널 확인(`py -3.12 --version`) 결과별 할 일, 마지막은 보조강사로 정리
+- ipykernel 설치 단계의 `[확인 필요: 사내 pip 저장소/프록시]`는 위 표로 안내를 옮김
+
 ## 남은 일
 
 1. `[확인 필요]` 값(Gateway 주소·변수명, Virtual Key 변수명, 키 전달 메일, Bedrock 연결 확인 방법, Claude Code 설치 방식, pip 저장소·프록시, Skill 이름·배포 위치, 패키지, 메신저 발신 계정)은 **교안 최종 확정 직전에** 한꺼번에 반영
