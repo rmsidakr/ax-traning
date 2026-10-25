@@ -60,11 +60,11 @@ def _step0():
     show("준비", True, f"준비 완료 (Python {platform.python_version()})")
 
 
-# 1단계: Python(3.8 이상)과 VS Code 확장(Python, Jupyter) 확인
+# 1단계: Python 3.12와 VS Code 확장(Python, Jupyter) 확인
 def _step1():
-    ok = sys.version_info >= (3, 8)
+    ok = sys.version_info[:2] == (3, 12)
     show("Python", ok, f"Python {platform.python_version()} — 위치: {sys.executable}",
-         "Python 3.8 이상이 필요합니다. 배포받은 Python 설치파일로 다시 설치한 뒤 VS Code를 재시작하세요.")
+         "Python 3.12가 아닙니다. 오른쪽 위 커널 이름을 눌러 Python 3.12를 고르고 0단계부터 다시 ▶를 누르세요. 목록에 없으면 보조강사를 불러 주세요.")
 
     NEED_EXTENSIONS = {"ms-python.python": "Python", "ms-toolsai.jupyter": "Jupyter"}
 
