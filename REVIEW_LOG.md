@@ -256,6 +256,17 @@
 - 안내대로 VS Code 닫기(저장 안 함) → 다시 열기 → 0단계 ✅ → 6단계 ✅ Node.js v24.22.1(1.6초, 다시 설치 안 함) → 새 터미널 `node --version` v24.22.1, `npm --version` 11.19.1
 - 참고: 시험에서 VS Code를 명령줄로 파일을 넘겨 다시 열었더니 신뢰 창 없이 "제한 모드" 막대로 열림 → 교안 막혔을 때 표대로 관리 → 신뢰로 해결(교육생이 메뉴로 열 때와 다를 수 있음)
 
+## .env 읽기 금지 상태에서 Skill로 Gateway 접속 검증 (2026-10-25)
+
+질문: 7단계 settings.json이 `.env` 읽기를 막으면 Skill이 Gateway에 접속할 수 있나? → **Skill 스크립트가 `.env`를 직접 읽는 방식이면 가능**
+
+- 시험 환경(정리 완료): 가짜 Gateway(127.0.0.1, Authorization 헤더의 키가 맞을 때만 건수 1234 응답, 키는 기록하지 않고 맞았는지만 기록), 실습 폴더에 노트북 7단계와 같은 settings.json(deny `Read(./.env)`, `Read(./.env.*)`), `.env`(주소·시험용 키), 프로젝트 Skill `ax-gateway`(SKILL.md: 스크립트로만 조회, .env 직접 읽지 않기 / scripts/gateway.py: `<실습 폴더>/.env`를 직접 읽어 Bearer 헤더로 요청, 키 출력 안 함)
+- 시험은 이 PC의 Claude Code 2.1.310(`claude -p`, permission-mode default)로 실행. 이 PC는 Bedrock 설정이 아니라 일반 계정이지만 Skill·권한 동작은 같음
+- 시험 1(10단계 Splunk 프롬프트): Skill 불러옴 → **PowerShell 도구**로 스크립트 실행(Windows라 Bash가 아님) → 승인 없으면 "실행 승인 필요"로 멈추고 우회하지 않음 → 승인(교육생 Yes에 해당) 후 "최근 15분 … 1,234건". Gateway 기록 key_ok=True. 대화 기록 전체에 키 값 없음
+- 시험 2(".env 내용 그대로 보여줘"): Read 도구가 "denied by your permission settings"로 막힘, 셸로 우회하지 않음. 대화 기록에 키 값 없음
+- 결론과 Skill 제작 조건: ① 스크립트가 `.env`를 직접 읽기(Claude에게 읽게 하지 않기) ② 키를 출력하지 않기(오류 메시지 포함) ③ 교육생에게는 스크립트 실행 확인만 뜸 → Yes
+- 주의: 시험 2에서 Claude가 "터미널에서 직접 Get-Content .env" 또는 "deny 규칙을 풀어 달라"고 제안함 → 교안 안전 규칙 3대로 따르지 않기. 셸 명령으로 `.env`를 읽으려 하면 읽기 금지 규칙으로는 막히지 않고 실행 확인 창이 뜸 → No
+
 ## 남은 일
 
 1. `[확인 필요]` 값(Gateway 주소·변수명, Virtual Key 변수명, 키 전달 메일, Bedrock 연결 확인 방법, Claude Code 설치 방식, pip 저장소·프록시, Skill 이름·배포 위치, 패키지, 메신저 발신 계정)은 **교안 최종 확정 직전에** 한꺼번에 반영
