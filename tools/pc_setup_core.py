@@ -14,6 +14,9 @@ SKILL_SOURCE = r"[확인 필요: Skill 배포 위치]"           # 배포받은 
 SKILL_INSTALL_DIR = Path.home() / ".claude" / "skills"  # Skill 설치 위치
 REQUIRED_PACKAGES = []                                   # [확인 필요: Skill에 필요한 Python 패키지] 예: ["requests"]
 NEED_NODE = True                                         # 실습에 Node.js가 필요함
+NODE_MSI = "node-v24.22.1-x64.msi"                       # 메일로 배포하는 Node.js 설치파일
+NODE_MSI_SHA256 = "3bda4baf1ee709b33cf920dd633106ddb23951e322bff9c03ec9f64ab8981b01"
+NODE_MSI_URL = "https://nodejs.org/dist/v24.22.1/" + NODE_MSI
 ENV_URL_NAME = "[확인 필요: Gateway 주소 변수명]"
 ENV_URL = "[확인 필요: Gateway 주소]"
 ENV_KEY_NAME = "[확인 필요: Virtual Key 변수명]"
@@ -180,8 +183,12 @@ def _step6():
              "위 오류를 보조강사에게 보여 주세요. [확인 필요: 사내 pip 저장소/프록시]")
 
 
-# 7단계: Node.js 확인 (설치는 메일로 받은 설치파일로 사람이 한다)
+# 7단계: Node.js 확인 → 없으면 설치 → 다시 확인
+#        설치파일은 메일로 받은 파일을 다운로드·바탕화면·노트북 폴더에서 찾고, 없으면 공식 사이트에서 받는다.
+#        어느 쪽이든 SHA-256 지문이 배포 파일과 같을 때만 설치한다.
 def _step7():
+    import hashlib, tempfile, urllib.request
+
     def node_version():
         for p in (shutil.which("node"), r"C:\Program Files\nodejs\node.exe"):
             if p and Path(p).exists():
@@ -190,14 +197,46 @@ def _step7():
                     return out
         return None
 
+    def same_file(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest() == NODE_MSI_SHA256
+
+    def find_msi():
+        notebook_dir = Path(globals().get("__vsc_ipynb_file__", "pc_setup.ipynb")).resolve().parent
+        for folder in (Path.home() / "Downloads", Path.home() / "Desktop", notebook_dir):
+            path = folder / NODE_MSI
+            if path.exists() and same_file(path):
+                return path
+        print(f"받은 설치파일({NODE_MSI})을 찾지 못해 공식 사이트에서 받습니다 ...")
+        path = Path(tempfile.gettempdir()) / NODE_MSI
+        try:
+            urllib.request.urlretrieve(NODE_MSI_URL, path)
+        except Exception as e:
+            print(f"   받지 못했습니다: {e}")
+            return None
+        return path if same_file(path) else None
+
     if NEED_NODE is None:
         show("Node.js", None, "Node.js가 필요한지 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
-    elif NEED_NODE is False:
+        return
+    if NEED_NODE is False:
         show("Node.js", True, "Node.js는 이번 실습에 필요 없습니다(건너뜀).")
-    else:
-        ver = node_version()
-        show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 설치돼 있지 않습니다.",
-             "메일로 받은 node-v24.22.1-x64.msi를 더블클릭해 설치하고, VS Code를 완전히 닫았다 다시 열어 0단계부터 다시 ▶를 누르세요.")
+        return
+
+    ver = node_version()
+    if not ver:
+        msi = find_msi()
+        if msi:
+            print(f"Node.js를 설치합니다: {msi}")
+            print("👉 관리자 승인 창이 뜨면 '예'를 누르세요. 설치 창이 닫힐 때까지 1~2분 기다립니다.")
+            ok, out = run(["msiexec", "/i", str(msi), "/passive", "/norestart"], timeout=900)
+            ver = node_version()
+            if ver:
+                print("👉 Node.js를 새로 설치했습니다. 터미널이 알아보도록 VS Code를 완전히 닫았다 다시 열고 0단계부터 다시 ▶를 누르세요.")
+            elif not ok:
+                print("   설치가 끝나지 않았습니다. 관리자 승인 창에서 '아니요'를 눌렀거나, 이 PC에서 설치가 막혀 있을 수 있습니다.")
+    show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 설치돼 있지 않습니다.",
+         f"메일로 받은 {NODE_MSI}를 더블클릭해 직접 설치하고, VS Code를 완전히 닫았다 다시 열어 0단계부터 다시 ▶를 누르세요. "
+         "그래도 ❌이면 보조강사를 불러 주세요.")
 
 
 # 8단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
