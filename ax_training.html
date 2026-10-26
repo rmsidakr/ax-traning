@@ -179,8 +179,8 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
   <a class="lv2" href="#pre-rules">안전 규칙 3가지</a>
   <a class="lv2" href="#pre-install">VS Code 확장 설치</a>
   <a href="#setup">2. PC 환경 셋팅 (20분)</a>
-  <a class="lv2" href="#setup-open">노트북 열기·설치 확인</a>
   <a class="lv2" href="#setup-nb">Jupyter 노트북 사용법</a>
+  <a class="lv2" href="#setup-open">노트북 열기·설치 확인</a>
   <a class="lv2" href="#setup-node">Node.js 설치</a>
   <a class="lv2" href="#setup-claude">Claude Code 첫 실행</a>
   <a class="lv2" href="#setup-skill">Skill 설치</a>
@@ -380,6 +380,25 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
   </table>
   </div>
 
+  <h3 id="setup-nb">Jupyter 노트북 사용법</h3>
+  <div class="two">
+    <div>
+      <ol class="steps">
+        <li>코드 칸에 마우스를 올리면 왼쪽에 나오는 <b>▶</b>를 누릅니다. (또는 <code>Shift + Enter</code>)</li>
+        <li>결과를 보고 다음 칸으로 넘어갑니다.</li>
+        <li>VS Code를 닫을 때 "변경 내용을 저장할까요?" 창이 뜨면 <b>저장 안 함</b>을 누릅니다. 다시 열었으면 <b>0단계부터</b> 다시 누릅니다.</li>
+      </ol>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>표시</th><th>뜻</th><th>할 일</th></tr>
+        <tr><td>✅</td><td>정상</td><td>다음 단계로</td></tr>
+        <tr><td>❌</td><td>문제 있음</td><td>👉 안내대로 하고 <b>같은 칸을 다시 ▶</b></td></tr>
+        <tr><td>⚠️</td><td>아직 정해지지 않은 값</td><td>강사 안내 기다리기</td></tr>
+      </table>
+    </div>
+  </div>
+
   <h3 id="setup-open">노트북 열기와 설치 확인 (0·1단계)</h3>
   <ol class="steps">
     <li>VS Code에서 <b>파일 → 파일 열기</b>로 배포받은 <code>pc_setup.ipynb</code>를 엽니다.</li>
@@ -415,25 +434,6 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
     </ul>
     <p>위 방법으로도 안 되면 화면을 그대로 두고 보조강사를 부릅니다.</p>
   </details>
-
-  <h3 id="setup-nb">Jupyter 노트북 사용법</h3>
-  <div class="two">
-    <div>
-      <ol class="steps">
-        <li>코드 칸에 마우스를 올리면 왼쪽에 나오는 <b>▶</b>를 누릅니다. (또는 <code>Shift + Enter</code>)</li>
-        <li>결과를 보고 다음 칸으로 넘어갑니다.</li>
-        <li>VS Code를 닫을 때 "변경 내용을 저장할까요?" 창이 뜨면 <b>저장 안 함</b>을 누릅니다. 다시 열었으면 <b>0단계부터</b> 다시 누릅니다.</li>
-      </ol>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <tr><th>표시</th><th>뜻</th><th>할 일</th></tr>
-        <tr><td>✅</td><td>정상</td><td>다음 단계로</td></tr>
-        <tr><td>❌</td><td>문제 있음</td><td>👉 안내대로 하고 <b>같은 칸을 다시 ▶</b></td></tr>
-        <tr><td>⚠️</td><td>아직 정해지지 않은 값</td><td>강사 안내 기다리기</td></tr>
-      </table>
-    </div>
-  </div>
 
   <h3 id="setup-node">Node.js 설치 (6단계)</h3>
   <ol class="steps">
