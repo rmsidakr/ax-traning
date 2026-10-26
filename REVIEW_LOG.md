@@ -275,8 +275,19 @@
 - 크롬으로 셋팅 블록 화면 확인.
 - 이어서 순서 조정: 일정표 → Jupyter 노트북 사용법 → 노트북 열기와 설치 확인 → Node.js 설치. 0단계부터 ▶와 ✅/❌를 쓰므로 사용법(▶ 누르는 법, 표시 뜻)이 먼저 나와야 한다. 목차 순서도 같이 바꿈.
 
+## 확정값 반영, 1단계 Python 3.12 자동 설치, 5단계(Python 패키지) 삭제
+
+- 확정: Gateway 주소 `https://gateway.security.samsungds.net`, Skill 이름 `ai-gateway-skills`. 키 전달 메일·Bedrock 확인 방법·pip 저장소/프록시·메신저 발신 계정은 확인된 것으로 처리해 `[확인 필요]` 표시를 지움(메신저 예시의 보낸 계정은 "메신저 발신 전용 계정").
+- 노트북 1단계: Python은 버전과 상관없이 설치만 확인(✅). 이어서 Python 3.12가 없으면 메일로 받은 `python-3.12.10-amd64.exe`를 찾아(없으면 python.org, SHA-256 확인) `/passive InstallAllUsers=0 PrependPath=1 InstallLauncherAllUsers=0`으로 이 사용자에게만 설치(관리자 승인 없음). 그다음 3.12를 기본 Python으로 설정: ① 사용자 PATH 맨 앞 ② `%LOCALAPPDATA%\py.ini`의 `[defaults] python=3.12` ③ VS Code `python.defaultInterpreterPath`. 시스템 PATH에 다른 Python이 먼저 있으면 관리자 권한이 필요하므로 ❌ + 보조강사. 바꾼 게 있으면 "VS Code를 닫았다 다시 열고 0단계부터" 안내.
+- 설치파일 찾기는 Python·Node.js가 같이 쓰는 `find_installer`로 묶음.
+- 5단계(Python 패키지) 삭제 → 뒤 단계 번호를 하나씩 당김(Node.js 5, Claude Code 첫 실행 6, Skill 7, .env 8, 조회 9·10, 최종 점검 11). 교안·노트북·`installers/README.md` 번호 모두 맞춤.
+- 교안: ① 제목 "Python (미리 설치됨)", 커널 선택에서 3.12가 없으면 다른 Python 선택, 0·1단계 정상 결과 네 줄, 터미널 확인 `python --version`, 막혔을 때 표에 "1단계 Python 3.12 설치 실패" 줄 추가.
+- 검증(가짜 레지스트리·가짜 사용자 폴더, 실제 PC 설정은 건드리지 않음): 3.12 있음(기본 설정 후 두 번째 ▶는 바꿀 것 없음, 기존 VS Code 설정·py.ini 내용 유지), 설치파일로 설치, 설치파일 없음, 설치 실패, 시스템 PATH에 다른 Python, VS Code 설정에 주석 → 모두 의도대로. `py.ini` 형식은 이 PC에서 잠깐 만들어 `py`가 3.12.10을 고르는 것을 확인하고 지움. 읽기만 하는 단계(0·2·3·4·5·11)는 실제로 실행해 번호 변경 뒤에도 정상.
+- 검증 안 함: 실제 Python 3.12 설치(이 PC에 이미 있음), 이 PC에서 1단계 실제 실행(py 기본값·VS Code 설정이 바뀌므로). 리허설 PC에서 확인 필요.
+- 남은 점: 0단계 ipykernel 오프라인 묶음은 Python 3.12 전용이라, 3.12가 없는 PC에서 다른 Python 커널로 열 때 VS Code의 ipykernel 설치가 실패하면 쓸 수 없음.
+
 ## 남은 일
 
-1. `[확인 필요]` 값(Gateway 주소·변수명, Virtual Key 변수명, 키 전달 메일, Bedrock 연결 확인 방법, Claude Code 설치 방식, pip 저장소·프록시, Skill 이름·배포 위치, 패키지, 메신저 발신 계정)은 **교안 최종 확정 직전에** 한꺼번에 반영
+1. `[확인 필요]` 값(Gateway 주소 변수명, Virtual Key 변수명, Claude Code 설치 방식, Skill 배포 위치)은 **교안 최종 확정 직전에** 한꺼번에 반영. 변수명이 정해지기 전에는 노트북 8단계(.env)가 ⚠️로 남는다
 2. 1·2교시 실습 콘텐츠(1-A~1-D, 2-A~2-D, 웹앱)는 최종 확정 전에 사용자가 수정 예정
 3. 블록 5 마무리(실습 일정 전체 마무리) 내용 구성. 오늘의 일정 표에 블록 4·5 시간 추가 여부

@@ -10,7 +10,7 @@
 
 - Python·Node.js 설치파일은 공식 배포처에서 2026-10-25에 받았고, 배포자 디지털 서명(Python Software Foundation, OpenJS Foundation)이 유효합니다. Node.js는 공식 `SHASUMS256.txt`의 값과도 같습니다.
 - Python 3.12는 3.12.10이 Windows 설치파일이 나온 마지막 버전입니다. 그 뒤 3.12.x는 소스 코드로만 나옵니다.
-- Python 설치 방법은 교안 "1. 사전 안내 → VS Code 확장 설치 → ① Python 3.12"(접힌 칸)에 있습니다. Node.js는 셋팅 노트북 6단계가 받은 설치파일을 찾아 자동으로 설치합니다. 설치 확인은 노트북 1단계(Python)와 6단계(Node.js)에서 합니다.
+- Python 3.12는 셋팅 노트북 1단계, Node.js는 5단계가 받은 설치파일을 찾아 자동으로 설치합니다(다운로드·바탕화면·노트북 폴더 → 없으면 공식 사이트, SHA-256이 위 값과 같을 때만). Python은 이 사용자에게만 설치하고(관리자 승인 없음) 3.12를 기본 Python으로 설정합니다. PC에 Python이 아예 없어 노트북을 열 수 없을 때만 교안 "1. 사전 안내 → VS Code 확장 설치 → ① Python"(접힌 칸)대로 직접 설치합니다.
 - ipykernel 묶음은 노트북 0단계에서 VS Code의 ipykernel 설치가 실패할 때(사내망에서 pip 접속이 막힌 경우) 씁니다. 압축을 풀고 `install_ipykernel.bat`를 더블클릭하면 인터넷 없이 Python 3.12에 설치합니다. 사용법은 교안 "Jupyter 노트북이 실행되지 않을 때" 표에 있습니다.
 - 묶음을 새로 만들 때: `py -3.12 tools/build_ipykernel_bundle.py` (교육생 PC와 같은 Windows 64비트 Python 3.12에서 실행)
 - 메일 보안 필터가 압축 파일 안의 `.bat`를 막을 수 있습니다. 막히면 사내 공유 폴더 등 다른 경로로 전달합니다.

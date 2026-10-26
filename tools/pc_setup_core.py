@@ -9,20 +9,22 @@ from pathlib import Path
 
 # ── 강사가 채울 값 ─────────────────────────────────────────
 PRACTICE_DIR = Path.home() / "ax-training"               # 실습 폴더
-SKILL_NAME = "[확인 필요: Skill 이름]"
+SKILL_NAME = "ai-gateway-skills"
 SKILL_SOURCE = r"[확인 필요: Skill 배포 위치]"           # 배포받은 Skill 폴더 경로
 SKILL_INSTALL_DIR = Path.home() / ".claude" / "skills"  # Skill 설치 위치
-REQUIRED_PACKAGES = []                                   # [확인 필요: Skill에 필요한 Python 패키지] 예: ["requests"]
+PY_EXE = "python-3.12.10-amd64.exe"                      # 메일로 배포하는 Python 3.12 설치파일
+PY_EXE_SHA256 = "67b5635e80ea51072b87941312d00ec8927c4db9ba18938f7ad2d27b328b95fb"
+PY_EXE_URL = "https://www.python.org/ftp/python/3.12.10/" + PY_EXE
 NEED_NODE = True                                         # 실습에 Node.js가 필요함
 NODE_MSI = "node-v24.22.1-x64.msi"                       # 메일로 배포하는 Node.js 설치파일
 NODE_MSI_SHA256 = "3bda4baf1ee709b33cf920dd633106ddb23951e322bff9c03ec9f64ab8981b01"
 NODE_MSI_URL = "https://nodejs.org/dist/v24.22.1/" + NODE_MSI
 ENV_URL_NAME = "[확인 필요: Gateway 주소 변수명]"
-ENV_URL = "[확인 필요: Gateway 주소]"
+ENV_URL = "https://gateway.security.samsungds.net"
 ENV_KEY_NAME = "[확인 필요: Virtual Key 변수명]"
 # ─────────────────────────────────────────────────────────
 
-STEP_ORDER = ["준비", "Python", "VS Code 확장", "VS Code", "Claude Code", "Bedrock 설정", "Python 패키지",
+STEP_ORDER = ["준비", "Python", "VS Code 확장", "Python 3.12", "VS Code", "Claude Code", "Bedrock 설정",
               "Node.js", "실습 폴더", "Skill", ".env"]
 MARK = {True: "✅", False: "❌", None: "⚠️"}
 RESULTS = globals().get("RESULTS", {})
@@ -44,6 +46,28 @@ def run(cmd, timeout=60):
     except subprocess.TimeoutExpired:
         return False, "시간 초과"
 
+def find_installer(name, sha256, url):
+    # 메일로 받은 설치파일을 다운로드·바탕화면·노트북 폴더에서 찾고, 없으면 공식 사이트에서 받는다.
+    # 어느 쪽이든 SHA-256 지문이 배포 파일과 같을 때만 돌려준다
+    import hashlib, tempfile, urllib.request
+
+    def same_file(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest() == sha256
+
+    notebook_dir = Path(globals().get("__vsc_ipynb_file__", "pc_setup.ipynb")).resolve().parent
+    for folder in (Path.home() / "Downloads", Path.home() / "Desktop", notebook_dir):
+        path = folder / name
+        if path.exists() and same_file(path):
+            return path
+    print(f"받은 설치파일({name})을 찾지 못해 공식 사이트에서 받습니다 ...")
+    path = Path(tempfile.gettempdir()) / name
+    try:
+        urllib.request.urlretrieve(url, path)
+    except Exception as e:
+        print(f"   받지 못했습니다: {e}")
+        return None
+    return path if same_file(path) else None
+
 def is_placeholder(value):
     return isinstance(value, str) and value.startswith("[확인 필요")
 
@@ -63,11 +87,11 @@ def _step0():
     show("준비", True, f"준비 완료 (Python {platform.python_version()})")
 
 
-# 1단계: Python 3.12와 VS Code 확장(Python, Jupyter) 확인
+# 1단계: Python(버전 무관)과 VS Code 확장(Python, Jupyter) 확인
+#        → Python 3.12가 없으면 설치하고, 3.12를 기본 Python으로 설정한다(관리자 권한 없이 이 사용자에게만)
 def _step1():
-    ok = sys.version_info[:2] == (3, 12)
-    show("Python", ok, f"Python {platform.python_version()} — 위치: {sys.executable}",
-         "Python 3.12가 아닙니다. 오른쪽 위 커널 이름을 눌러 Python 3.12를 고르고 0단계부터 다시 ▶를 누르세요. 목록에 없으면 보조강사를 불러 주세요.")
+    import configparser, ctypes, winreg
+    show("Python", True, f"Python {platform.python_version()} — 위치: {sys.executable}")
 
     NEED_EXTENSIONS = {"ms-python.python": "Python", "ms-toolsai.jupyter": "Jupyter"}
 
@@ -94,6 +118,103 @@ def _step1():
         show("VS Code 확장", not missing,
              f"VS Code 확장 확인: {', '.join(found)}" if not missing else f"VS Code 확장이 빠졌습니다: {', '.join(missing)}",
              "VS Code 왼쪽 확장 아이콘(Ctrl + Shift + X)에서 Microsoft의 확장을 설치하고 이 칸의 ▶를 다시 누르세요.")
+
+    def find_py312():
+        for p in (Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Python" / "Python312" / "python.exe",
+                  Path(r"C:\Program Files\Python312\python.exe")):
+            if p.exists():
+                ok, out = run([str(p), "--version"])
+                if ok and out.startswith("Python 3.12"):
+                    return p, out.split()[1]
+        return None, None
+
+    def same_dir(a, b):
+        return os.path.normcase(os.path.expandvars(str(a)).rstrip("\\")) == os.path.normcase(str(b).rstrip("\\"))
+
+    def set_default(exe):
+        # 기본 Python = ① 사용자 PATH 맨 앞 ② py 명령의 기본값(py.ini) ③ VS Code의 기본 Python. 바꾼 게 있으면 True
+        changed = False
+        first = [str(exe.parent / "Scripts") + "\\", str(exe.parent) + "\\"]
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_READ | winreg.KEY_WRITE) as k:
+            try:
+                old, kind = winreg.QueryValueEx(k, "Path")
+            except FileNotFoundError:
+                old, kind = "", winreg.REG_EXPAND_SZ
+            parts = [x for x in old.split(";") if x]
+            if not (len(parts) >= 2 and same_dir(parts[0], first[0]) and same_dir(parts[1], first[1])):
+                rest = [x for x in parts if not any(same_dir(x, f) for f in first)]
+                winreg.SetValueEx(k, "Path", 0, kind, ";".join(first + rest))
+                ctypes.windll.user32.SendMessageTimeoutW(0xFFFF, 0x001A, 0, "Environment", 0x0002, 5000, None)
+                changed = True
+
+        ini_path = Path(os.environ["LOCALAPPDATA"]) / "py.ini"
+        ini = configparser.ConfigParser()
+        ini.read(ini_path, encoding="utf-8")
+        if ini.get("defaults", "python", fallback="") != "3.12":
+            if not ini.has_section("defaults"):
+                ini.add_section("defaults")
+            ini.set("defaults", "python", "3.12")
+            with open(ini_path, "w", encoding="utf-8") as f:
+                ini.write(f)
+            changed = True
+
+        vs_path = Path(os.environ["APPDATA"]) / "Code" / "User" / "settings.json"
+        try:
+            vs = json.loads(vs_path.read_text(encoding="utf-8-sig")) if vs_path.exists() else {}
+            if vs.get("python.defaultInterpreterPath") != str(exe):
+                vs["python.defaultInterpreterPath"] = str(exe)
+                vs_path.parent.mkdir(parents=True, exist_ok=True)
+                vs_path.write_text(json.dumps(vs, ensure_ascii=False, indent=4), encoding="utf-8")
+                changed = True
+        except ValueError:   # 주석 등이 있어 읽지 못하면 VS Code 설정은 건드리지 않는다
+            print("   (VS Code 설정 파일을 읽지 못해 VS Code의 기본 Python은 바꾸지 않았습니다)")
+        return changed
+
+    def path_python():
+        # 새로 여는 터미널에서 python 명령이 가리킬 파일 (시스템 PATH → 사용자 PATH 순서)
+        dirs = []
+        for root, sub in ((winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"),
+                          (winreg.HKEY_CURRENT_USER, "Environment")):
+            try:
+                with winreg.OpenKey(root, sub) as k:
+                    dirs += winreg.QueryValueEx(k, "Path")[0].split(";")
+            except OSError:
+                pass
+        for d in filter(None, dirs):
+            p = Path(os.path.expandvars(d)) / "python.exe"
+            if p.exists():
+                return p
+        return None
+
+    exe, ver = find_py312()
+    installer = None
+    if not exe:
+        installer = find_installer(PY_EXE, PY_EXE_SHA256, PY_EXE_URL)
+        if installer:
+            print(f"Python 3.12를 설치합니다: {installer}")
+            print("👉 설치 창이 저절로 닫힐 때까지 1~2분 기다립니다.")
+            run([str(installer), "/passive", "InstallAllUsers=0", "PrependPath=1", "Include_launcher=1",
+                 "InstallLauncherAllUsers=0", "Include_test=0"], timeout=900)
+            exe, ver = find_py312()
+    if not exe:
+        hint = ("같은 칸을 다시 ▶ 누르세요. 그래도 ❌이면 보조강사를 불러 주세요." if installer else
+                f"메일로 받은 {PY_EXE}를 다운로드 폴더에 저장하고 같은 칸을 다시 ▶ 누르세요. 그래도 ❌이면 보조강사를 불러 주세요.")
+        show("Python 3.12", False, "Python 3.12가 설치돼 있지 않습니다.", hint)
+        return
+    try:
+        changed = set_default(exe)
+    except Exception as e:
+        show("Python 3.12", False, f"Python 3.12는 있지만 기본 Python으로 설정하지 못했습니다: {e}",
+             "화면을 그대로 두고 보조강사를 불러 주세요.")
+        return
+    first = path_python()
+    if first and not same_dir(first.parent, exe.parent):
+        show("Python 3.12", False, f"Python 3.12는 있지만 다른 Python이 먼저 잡힙니다: {first}",
+             "PC 전체 설정(시스템 PATH)이라 관리자 권한이 필요합니다. 보조강사를 불러 주세요.")
+        return
+    if installer or changed:
+        print("👉 기본 Python을 3.12로 설정했습니다. 터미널이 알아보도록 VS Code를 완전히 닫았다 다시 열고 0단계부터 다시 ▶를 누르세요.")
+    show("Python 3.12", True, f"기본 Python: Python {ver} — 위치: {exe}")
 
 
 # 2단계: VS Code 확인
@@ -126,7 +247,6 @@ def _step3():
 
 # 4단계: Bedrock 연결 설정 확인 (환경변수 → Claude Code 설정 파일 순서로 찾는다)
 def _step4():
-    # [확인 필요: Bedrock 연결 확인 방법] 사내 표준 방식에 맞게 조정
     keys = ("CLAUDE_CODE_USE_BEDROCK", "AWS_REGION")
     found = {k: (os.environ[k], "환경변수") for k in keys if os.environ.get(k)}
     settings_file = Path.home() / ".claude" / "settings.json"
@@ -144,43 +264,12 @@ def _step4():
         show("Bedrock 설정", True, f"Bedrock 사용 설정 확인 ({where}), 리전: {region}")
     else:
         show("Bedrock 설정", None, "이 방법으로는 Bedrock 설정을 찾지 못했습니다.",
-             "사내 설정 방식이 다를 수 있습니다. 7단계에서 Claude Code가 대답하면 정상입니다.")
+             "사내 설정 방식이 다를 수 있습니다. 6단계에서 Claude Code가 대답하면 정상입니다.")
 
 
-# 5단계: Python 패키지 확인 → 없으면 설치 → 다시 확인
+# 5단계: Node.js 확인 → 없으면 설치 → 다시 확인
+#        설치파일은 find_installer로 찾는다(SHA-256 지문이 배포 파일과 같을 때만 설치).
 def _step5():
-    from importlib import metadata
-
-    def missing_packages():
-        miss = []
-        for name in REQUIRED_PACKAGES:
-            try:
-                metadata.version(name)
-            except metadata.PackageNotFoundError:
-                miss.append(name)
-        return miss
-
-    if not REQUIRED_PACKAGES:
-        show("Python 패키지", None, "설치할 패키지 목록이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
-    else:
-        miss = missing_packages()
-        if miss:
-            print(f"설치 중: {', '.join(miss)} ...")
-            ok, out = run([sys.executable, "-m", "pip", "install", *miss], timeout=600)
-            if not ok:
-                print(out[-1500:])
-        miss = missing_packages()
-        show("Python 패키지", not miss,
-             f"모든 패키지 설치됨: {', '.join(REQUIRED_PACKAGES)}" if not miss else f"설치되지 않은 패키지: {', '.join(miss)}",
-             "위 오류를 보조강사에게 보여 주세요. [확인 필요: 사내 pip 저장소/프록시]")
-
-
-# 6단계: Node.js 확인 → 없으면 설치 → 다시 확인
-#        설치파일은 메일로 받은 파일을 다운로드·바탕화면·노트북 폴더에서 찾고, 없으면 공식 사이트에서 받는다.
-#        어느 쪽이든 SHA-256 지문이 배포 파일과 같을 때만 설치한다.
-def _step6():
-    import hashlib, tempfile, urllib.request
-
     def node_version():
         for p in (shutil.which("node"), r"C:\Program Files\nodejs\node.exe"):
             if p and Path(p).exists():
@@ -188,24 +277,6 @@ def _step6():
                 if ok:
                     return out
         return None
-
-    def same_file(path):
-        return hashlib.sha256(path.read_bytes()).hexdigest() == NODE_MSI_SHA256
-
-    def find_msi():
-        notebook_dir = Path(globals().get("__vsc_ipynb_file__", "pc_setup.ipynb")).resolve().parent
-        for folder in (Path.home() / "Downloads", Path.home() / "Desktop", notebook_dir):
-            path = folder / NODE_MSI
-            if path.exists() and same_file(path):
-                return path
-        print(f"받은 설치파일({NODE_MSI})을 찾지 못해 공식 사이트에서 받습니다 ...")
-        path = Path(tempfile.gettempdir()) / NODE_MSI
-        try:
-            urllib.request.urlretrieve(NODE_MSI_URL, path)
-        except Exception as e:
-            print(f"   받지 못했습니다: {e}")
-            return None
-        return path if same_file(path) else None
 
     if NEED_NODE is None:
         show("Node.js", None, "Node.js가 필요한지 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
@@ -217,7 +288,7 @@ def _step6():
     ver = node_version()
     msi = None
     if not ver:
-        msi = find_msi()
+        msi = find_installer(NODE_MSI, NODE_MSI_SHA256, NODE_MSI_URL)
         if msi:
             print(f"Node.js를 설치합니다: {msi}")
             print("👉 관리자 승인 창이 뜨면 '예'를 누르세요. 설치 창이 닫힐 때까지 1~2분 기다립니다.")
@@ -235,8 +306,8 @@ def _step6():
     show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 설치돼 있지 않습니다.", hint)
 
 
-# 7단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
-def _step7():
+# 6단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
+def _step6():
     #        + Claude Code가 .env(키 파일)를 읽지 못하게 실습 폴더 설정에 읽기 금지 규칙을 넣는다
     ENV_DENY = ["Read(./.env)", "Read(./.env.*)"]
 
@@ -257,8 +328,8 @@ def _step7():
                  "화면을 그대로 두고 보조강사를 불러 주세요.")
 
 
-# 8단계: Skill 확인 → 없으면 설치(배포 폴더 복사) → 다시 확인
-def _step8():
+# 7단계: Skill 확인 → 없으면 설치(배포 폴더 복사) → 다시 확인
+def _step7():
     if is_placeholder(SKILL_NAME):
         show("Skill", None, "Skill 이름이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
     else:
@@ -276,15 +347,15 @@ def _step8():
              "보조강사를 불러 주세요. [확인 필요: Skill 설치 방법]")
 
 
-# 9단계: .env 만들기·확인 (키 자리를 비운 파일은 노트북이 만들고, 키는 사람이 직접 넣는다. 키 값은 출력하지 않는다)
-#         Claude Code는 7단계 설정 때문에 .env를 읽지도 쓰지도 못한다
-def _step9():
+# 8단계: .env 만들기·확인 (키 자리를 비운 파일은 노트북이 만들고, 키는 사람이 직접 넣는다. 키 값은 출력하지 않는다)
+#         Claude Code는 6단계 설정 때문에 .env를 읽지도 쓰지도 못한다
+def _step8():
     env_path = PRACTICE_DIR / ".env"
     if is_placeholder(ENV_KEY_NAME) or is_placeholder(ENV_URL_NAME) or is_placeholder(ENV_URL):
         show(".env", None, ".env 변수 이름이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
         return
     if not PRACTICE_DIR.is_dir():
-        show(".env", False, f"실습 폴더가 없습니다: {PRACTICE_DIR}", "7단계를 먼저 ✅로 만드세요.")
+        show(".env", False, f"실습 폴더가 없습니다: {PRACTICE_DIR}", "6단계를 먼저 ✅로 만드세요.")
         return
     if not env_path.exists():
         env_path.write_text(f"{ENV_URL_NAME}={ENV_URL}\n{ENV_KEY_NAME}=\n", encoding="utf-8")
@@ -314,18 +385,18 @@ def copy_prompt(text):
     print(f"   {text}")
 
 
-# 10단계: Splunk 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
-def _step10():
+# 9단계: Splunk 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
+def _step9():
     copy_prompt(SPLUNK_PROMPT)
 
 
-# 11단계: 일정 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
-def _step11():
+# 10단계: 일정 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
+def _step10():
     copy_prompt(CALENDAR_PROMPT)
 
 
-# 12단계: 최종 점검표 (0~9단계. Splunk·일정 조회는 Claude Code 화면에서 확인한다)
-def _step12():
+# 11단계: 최종 점검표 (0~8단계. Splunk·일정 조회는 Claude Code 화면에서 확인한다)
+def _step11():
     print("=== 셋팅 결과 요약 ===")
     count = {True: 0, False: 0, None: 0}
     for step in STEP_ORDER:
@@ -340,7 +411,7 @@ def _step12():
         print("🎉 셋팅 완료!" + (" (⚠️ 항목은 강사 안내를 따르세요)" if count[None] else ""))
     else:
         print("❌ 또는 ⬜ 항목의 단계로 돌아가 ▶를 다시 누르세요. 같은 ❌가 반복되면 보조강사를 불러 주세요.")
-    print("Splunk·일정 조회(10·11단계)는 Claude Code 화면에 결과가 나왔으면 성공입니다.")
+    print("Splunk·일정 조회(9·10단계)는 Claude Code 화면에 결과가 나왔으면 성공입니다.")
 
 
 def step(n):
