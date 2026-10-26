@@ -179,6 +179,7 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
   <a class="lv2" href="#pre-rules">안전 규칙 3가지</a>
   <a class="lv2" href="#pre-install">VS Code 확장 설치</a>
   <a href="#setup">2. PC 환경 셋팅 (20분)</a>
+  <a class="lv2" href="#setup-open">노트북 열기·설치 확인</a>
   <a class="lv2" href="#setup-nb">Jupyter 노트북 사용법</a>
   <a class="lv2" href="#setup-node">Node.js 설치</a>
   <a class="lv2" href="#setup-claude">Claude Code 첫 실행</a>
@@ -236,7 +237,7 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
     <tr><td class="time">09:05–09:12</td><td>실습 흐름과 오늘 쓰는 도구</td></tr>
     <tr><td class="time">09:12–09:17</td><td>안전 규칙 3가지</td></tr>
     <tr><td class="time">09:17–09:25</td><td>AI 활용 경험 소개 <span class="badge ppt">강사 PPTX</span></td></tr>
-    <tr><td class="time">09:25–09:30</td><td>VS Code 확장 설치와 설치 확인</td></tr>
+    <tr><td class="time">09:25–09:30</td><td>VS Code 확장 설치</td></tr>
   </table>
   </div>
 
@@ -274,10 +275,10 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
   <h3>AI 활용 경험 소개 <span class="badge ppt">강사 PPTX</span></h3>
 
   <h3 id="pre-install">VS Code 확장 설치</h3>
-  <p>다음 블록에서 쓰는 셋팅용 <b>Jupyter 노트북</b>(<code>pc_setup.ipynb</code>: 설명과 실행 버튼이 함께 들어 있는 문서 파일)을 열려면 Python과 VS Code 확장이 <b>먼저</b> 있어야 합니다. Python 3.12는 미리 설치되어 있으므로, VS Code 확장을 지금 설치하고 설치가 잘 됐는지 버전까지 확인합니다.</p>
+  <p>다음 블록에서 쓰는 셋팅용 <b>Jupyter 노트북</b>(<code>pc_setup.ipynb</code>: 설명과 실행 버튼이 함께 들어 있는 문서 파일)을 열려면 Python과 VS Code 확장이 <b>먼저</b> 있어야 합니다. Python 3.12는 미리 설치되어 있으므로, VS Code 확장을 지금 설치합니다. 설치가 잘 됐는지는 다음 블록에서 노트북을 열어 확인합니다.</p>
 
   <h4>① Python 3.12 (미리 설치됨)</h4>
-  <p>Python 3.12는 미리 설치되어 있습니다. 설치가 잘 됐는지는 ③에서 노트북 1단계로 확인합니다.</p>
+  <p>Python 3.12는 미리 설치되어 있습니다. 설치가 잘 됐는지는 다음 블록에서 노트북 1단계로 확인합니다.</p>
   <details class="fold">
     <summary>Python이 설치되지 않은 경우 (눌러서 펼치기)</summary>
   <ol class="steps">
@@ -362,7 +363,24 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
     </div>
   </div>
 
-  <h4>③ 설치 확인 (Jupyter 노트북으로 버전 확인)</h4>
+</section>
+
+<!-- ═════════════════════════ 2. PC 환경 셋팅 ═════════════════════════ -->
+<section class="block" id="setup">
+  <div class="block-head"><h2>2. PC 환경 셋팅</h2><span class="badge">20분</span><span class="badge talk">모두 VS Code 안에서</span></div>
+  <p>셋팅용 Jupyter 노트북 <code>pc_setup.ipynb</code>를 열고 <b>0단계부터</b> ▶ 버튼을 누르며 따라갑니다. Claude Code는 <b>VS Code 터미널</b>에서 실행합니다.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>시간</th><th>내용</th></tr>
+    <tr><td class="time">09:30–09:35</td><td><b>노트북 열기</b>와 설치 확인, 사전 배포 도구 확인(VS Code, Claude Code, Bedrock 설정, Python 패키지)과 <b>Node.js 자동 설치</b> (▶ 차례로 실행)</td></tr>
+    <tr><td class="time">09:35–09:40</td><td><b>Claude Code 첫 실행</b>과 실습 폴더 <code>ax-training</code> 만들기</td></tr>
+    <tr><td class="time">09:40–09:42</td><td>실습용 Skill 설치와 Claude Code 다시 켜기</td></tr>
+    <tr><td class="time">09:42–09:46</td><td><b>.env 설정</b>: 노트북이 키 자리가 빈 파일을 만들고, 키는 직접 붙여 넣기</td></tr>
+    <tr><td class="time">09:46–09:50</td><td>연결 테스트(조회만): 노트북이 복사해 주는 프롬프트로 Claude Code에서 Splunk·내 일정 조회 → 최종 점검표 (모두 ✅인지)</td></tr>
+  </table>
+  </div>
+
+  <h3 id="setup-open">노트북 열기와 설치 확인 (0·1단계)</h3>
   <ol class="steps">
     <li>VS Code에서 <b>파일 → 파일 열기</b>로 배포받은 <code>pc_setup.ipynb</code>를 엽니다.</li>
     <li>"<b>이 창에서 신뢰할 수 없는 파일을 허용하시겠습니까?</b>" 창이 뜨면 <b>열기</b>를 누릅니다. "제한 모드에서 열기"를 누르면 ▶ 버튼이 나오지 않습니다.
@@ -374,17 +392,17 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
     <li>"<b>ipykernel</b> 패키지가 필요합니다" 창이 뜨면 <b>설치</b>를 누르고 1~2분 기다립니다. Jupyter 노트북을 실행하는 데 필요한 부품이며, 설치가 끝나면 0단계 결과가 나옵니다. 설치가 실패하면 아래 접힌 "💡 Jupyter 노트북이 실행되지 않을 때"를 펼쳐 ipykernel 줄대로 합니다.
       <img class="shot" src="data:image/png;base64,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uzhsEHbXszjs6mMZO2tsK8ov+eqaX2NYzz2HXXHtX2PYk4ecM4TdIgm7iAt81bD7nthc2MW7eMjggq8qc2af1o6LJmEXcYGE3e0l7OIcCS5YK3Nmn9aOiyZhF3GBhN3tJeziHAkuWCtzZp/WjosmYRdxgYTd7SXs4hwJLlgrc2af1o6LJmEXcYGE3e0l7OIcCS5YK3Nmn9aOiyZhF3GBhN3tJeziHAkuWCtzZp/WjosmYRdxgX0Qw+3V+j8lFyEkuGCtzJl9WjsumoRdxAVqoQy3Uev/lLI4ImpzI6W2P75/anMjpbY/bqPW/zUSdhERERGxWQm7iIiIiNishF1EREREbFbCLiIiIiI2K2EXEREREZuVsIuIiIiIzUrYRURERMRmJewiIiIiYrMSdhERERGxWQm7iIiIiNishF1EREREbFbCLiIiIiI2K2EXEREREZuVsIuIiIiIzUrYRURERMRm3SzsIiIiIiLuQS2vJlRfRERERERsQfVFRERERMQWVF9ERERERGxB9UVERERExBZUX0REREREbEH1RURERETEFlRfRERERERsQfVFRERERMQWVF9ERERERGxB9UVERERExIP70P0/8kW6T8Go44wAAAAASUVORK5CYII=" alt="ipykernel 설치 창: 설치 버튼"></li>
     <li><b>1단계</b>의 <b>▶</b>를 누릅니다.</li>
-    <li>아래처럼 ✅ 세 줄이 나오면 설치가 끝난 것입니다.</li>
+    <li>아래처럼 ✅ 세 줄이 나오면 Python과 VS Code 확장이 잘 설치된 것입니다.</li>
   </ol>
   <div class="term"><span class="dim"># 0·1단계 실행 결과 (정상)</span>
 ✅ 준비 완료 (Python 3.12.x)
 ✅ Python 3.12.x — 위치: C:\Users\(사용자)\AppData\Local\Programs\Python\Python312\python.exe
 ✅ VS Code 확장 확인: Python 20xx.x.x, Jupyter 20xx.x.x</div>
-  <details class="fold" id="pre-nb-trouble">
+  <details class="fold" id="setup-nb-trouble">
     <summary>💡 Jupyter 노트북이 실행되지 않을 때 (눌러서 펼치기)</summary>
     <table>
       <tr><th>증상</th><th>해결</th></tr>
-      <tr><td>노트북이 칸 없이 글자로만 보임</td><td>VS Code 확장이 빠졌습니다. 위 <b>② VS Code 확장 설치</b>를 다시 하고 <code>pc_setup.ipynb</code>를 다시 엽니다.</td></tr>
+      <tr><td>노트북이 칸 없이 글자로만 보임</td><td>VS Code 확장이 빠졌습니다. 1. 사전 안내의 <b>② VS Code 확장 설치</b>를 다시 하고 <code>pc_setup.ipynb</code>를 다시 엽니다.</td></tr>
       <tr><td>칸은 보이는데 ▶가 없음</td><td>파일을 열 때 "제한 모드에서 열기"를 누른 경우입니다. 위쪽 "제한 모드" 막대의 <b>관리</b> → <b>신뢰</b></td></tr>
       <tr><td>커널 선택 목록에 Python 3.12가 없음</td><td>VS Code를 완전히 닫았다 다시 엽니다. 그래도 없으면 아래 <b>터미널 확인</b>을 합니다.</td></tr>
       <tr><td>ipykernel 설치가 실패하거나 5분이 지나도 끝나지 않음</td><td>메일로 받은 <code>ipykernel-py312-win64.zip</code>을 마우스 오른쪽 버튼 → <b>모두 압축 풀기</b> → 풀린 폴더의 <code>install_ipykernel.bat</code> 더블클릭 → <b>[OK] … 설치 완료</b>가 나오면 VS Code를 완전히 닫았다 다시 열고 0단계부터 ▶</td></tr>
@@ -393,26 +411,10 @@ details.fold[open] > summary { border-bottom: 1px solid var(--line); margin-bott
     <div class="term">py -3.12 --version</div>
     <ul>
       <li><b>Python 3.12.x</b>가 나오면 Python은 정상입니다. VS Code를 완전히 닫았다 다시 열고 커널 선택에서 <b>Python 3.12</b>를 고릅니다.</li>
-      <li>오류가 나오면 Python이 설치되지 않은 것입니다. 메일로 받은 <code>python-3.12.10-amd64.exe</code>를 다시 실행해 위 ① 순서대로 설치하고, VS Code를 완전히 닫았다 다시 엽니다.</li>
+      <li>오류가 나오면 Python이 설치되지 않은 것입니다. 메일로 받은 <code>python-3.12.10-amd64.exe</code>를 다시 실행해 1. 사전 안내의 ① 순서대로 설치하고, VS Code를 완전히 닫았다 다시 엽니다.</li>
     </ul>
     <p>위 방법으로도 안 되면 화면을 그대로 두고 보조강사를 부릅니다.</p>
   </details>
-</section>
-
-<!-- ═════════════════════════ 2. PC 환경 셋팅 ═════════════════════════ -->
-<section class="block" id="setup">
-  <div class="block-head"><h2>2. PC 환경 셋팅</h2><span class="badge">20분</span><span class="badge talk">모두 VS Code 안에서</span></div>
-  <p>사전 안내 시간에 열어 둔 셋팅용 Jupyter 노트북 <code>pc_setup.ipynb</code>에서 <b>0단계부터 다시</b> ▶ 버튼을 누르며 따라갑니다. 0·1단계는 이미 끝냈으므로 바로 ✅가 나옵니다. Claude Code는 <b>VS Code 터미널</b>에서 실행합니다.</p>
-  <div class="table-wrap">
-  <table>
-    <tr><th>시간</th><th>내용</th></tr>
-    <tr><td class="time">09:30–09:35</td><td>사전 배포 도구 확인(VS Code, Claude Code, Bedrock 설정, Python 패키지)과 <b>Node.js 자동 설치</b> (▶ 차례로 실행)</td></tr>
-    <tr><td class="time">09:35–09:40</td><td><b>Claude Code 첫 실행</b>과 실습 폴더 <code>ax-training</code> 만들기</td></tr>
-    <tr><td class="time">09:40–09:42</td><td>실습용 Skill 설치와 Claude Code 다시 켜기</td></tr>
-    <tr><td class="time">09:42–09:46</td><td><b>.env 설정</b>: 노트북이 키 자리가 빈 파일을 만들고, 키는 직접 붙여 넣기</td></tr>
-    <tr><td class="time">09:46–09:50</td><td>연결 테스트(조회만): 노트북이 복사해 주는 프롬프트로 Claude Code에서 Splunk·내 일정 조회 → 최종 점검표 (모두 ✅인지)</td></tr>
-  </table>
-  </div>
 
   <h3 id="setup-nb">Jupyter 노트북 사용법</h3>
   <div class="two">
