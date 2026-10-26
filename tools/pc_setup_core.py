@@ -328,8 +328,8 @@ def _step6():
                  "화면을 그대로 두고 보조강사를 불러 주세요.")
 
 
-# 7단계: Skill 확인 → 없으면 설치(배포 폴더 복사) → 다시 확인
-def _step7():
+# 7단계 앞부분: Skill 확인 → 없으면 설치(배포 폴더 복사) → 다시 확인
+def _skill():
     if is_placeholder(SKILL_NAME):
         show("Skill", None, "Skill 이름이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
     else:
@@ -339,7 +339,6 @@ def _step7():
             if not is_placeholder(SKILL_SOURCE) and (source / "SKILL.md").exists():
                 print(f"설치 중: {source} → {target}")
                 shutil.copytree(source, target, dirs_exist_ok=True)
-                print("설치했습니다. Claude Code를 /exit 로 끄고 다시 claude 로 켜 주세요.")
             else:
                 print(f"Skill 배포 위치를 찾지 못했습니다: {SKILL_SOURCE}")
         ok = (target / "SKILL.md").exists()
@@ -347,9 +346,9 @@ def _step7():
              "보조강사를 불러 주세요. [확인 필요: Skill 설치 방법]")
 
 
-# 8단계: .env 만들기·확인 (키 자리를 비운 파일은 노트북이 만들고, 키는 사람이 직접 넣는다. 키 값은 출력하지 않는다)
-#         Claude Code는 6단계 설정 때문에 .env를 읽지도 쓰지도 못한다
-def _step8():
+# 7단계 뒷부분: .env 만들기·확인 (키 자리를 비운 파일은 노트북이 만들고, 키는 사람이 직접 넣는다. 키 값은 출력하지 않는다)
+#         Claude Code는 6단계 설정 때문에 .env를 읽지 못한다
+def _env():
     env_path = PRACTICE_DIR / ".env"
     if is_placeholder(ENV_KEY_NAME) or is_placeholder(ENV_URL_NAME) or is_placeholder(ENV_URL):
         show(".env", None, ".env 변수 이름이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
@@ -372,6 +371,14 @@ def _step8():
         show(".env", True, f"Virtual Key 입력됨 (●●●● {len(key)}자) / Gateway 주소: {url}")
 
 
+# 7단계: Skill 설치와 Virtual Key 연결 → 둘 다 ✅이면 Claude Code를 한 번 다시 켜게 한다(새 Skill 적용)
+def _step7():
+    _skill()
+    _env()
+    if RESULTS.get("Skill", (None,))[0] is True and RESULTS.get(".env", (None,))[0] is True:
+        print("👉 Claude Code 화면에 /exit 를 입력해 끄고, claude 를 입력해 다시 켜세요. 새 Skill은 다시 켜야 적용됩니다.")
+
+
 SPLUNK_PROMPT = "Splunk에서 최근 15분 동안 들어온 이벤트 건수만 알려줘. 조회만 하고 다른 작업은 하지 마."
 CALENDAR_PROMPT = "오늘 내 일정 목록만 조회해서 보여줘. 등록, 수정, 삭제는 하지 마."
 
@@ -385,18 +392,18 @@ def copy_prompt(text):
     print(f"   {text}")
 
 
-# 9단계: Splunk 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
-def _step9():
+# 8단계: Splunk 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
+def _step8():
     copy_prompt(SPLUNK_PROMPT)
 
 
-# 10단계: 일정 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
-def _step10():
+# 9단계: 일정 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
+def _step9():
     copy_prompt(CALENDAR_PROMPT)
 
 
-# 11단계: 최종 점검표 (0~8단계. Splunk·일정 조회는 Claude Code 화면에서 확인한다)
-def _step11():
+# 10단계: 최종 점검표 (0~7단계. Splunk·일정 조회는 Claude Code 화면에서 확인한다)
+def _step10():
     print("=== 셋팅 결과 요약 ===")
     count = {True: 0, False: 0, None: 0}
     for step in STEP_ORDER:
@@ -411,7 +418,7 @@ def _step11():
         print("🎉 셋팅 완료!" + (" (⚠️ 항목은 강사 안내를 따르세요)" if count[None] else ""))
     else:
         print("❌ 또는 ⬜ 항목의 단계로 돌아가 ▶를 다시 누르세요. 같은 ❌가 반복되면 보조강사를 불러 주세요.")
-    print("Splunk·일정 조회(9·10단계)는 Claude Code 화면에 결과가 나왔으면 성공입니다.")
+    print("Splunk·일정 조회(8·9단계)는 Claude Code 화면에 결과가 나왔으면 성공입니다.")
 
 
 def step(n):
