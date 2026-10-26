@@ -239,10 +239,10 @@ def _step3():
              "보조강사를 불러 주세요.")
     elif fallback.exists():
         show("Claude Code", False, f"Claude Code는 있지만 PATH(명령을 찾는 경로)에 등록되지 않았습니다: {fallback}",
-             "보조강사를 불러 주세요. [확인 필요: Claude Code 설치 방식]")
+             "보조강사를 불러 주세요.")
     else:
         show("Claude Code", False, "Claude Code를 찾지 못했습니다(사전 배포 누락).",
-             "보조강사를 불러 주세요. [확인 필요: Claude Code 설치 방법]")
+             "보조강사를 불러 주세요.")
 
 
 # 4단계: Bedrock 연결 설정 확인 (환경변수 → Claude Code 설정 파일 순서로 찾는다)
