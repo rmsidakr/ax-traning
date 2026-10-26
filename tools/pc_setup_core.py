@@ -19,9 +19,9 @@ NEED_NODE = True                                         # 실습에 Node.js가 
 NODE_MSI = "node-v24.22.1-x64.msi"                       # 메일로 배포하는 Node.js 설치파일
 NODE_MSI_SHA256 = "3bda4baf1ee709b33cf920dd633106ddb23951e322bff9c03ec9f64ab8981b01"
 NODE_MSI_URL = "https://nodejs.org/dist/v24.22.1/" + NODE_MSI
-ENV_URL_NAME = "[확인 필요: Gateway 주소 변수명]"
+ENV_URL_NAME = "LITELLM_BASE_URL"
 ENV_URL = "https://gateway.security.samsungds.net"
-ENV_KEY_NAME = "[확인 필요: Virtual Key 변수명]"
+ENV_KEY_NAME = "LITELLM_API_KEY"
 # ─────────────────────────────────────────────────────────
 
 STEP_ORDER = ["준비", "Python", "VS Code 확장", "Python 3.12", "VS Code", "Claude Code", "Bedrock 설정",

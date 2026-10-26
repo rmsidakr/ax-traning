@@ -286,8 +286,16 @@
 - 검증 안 함: 실제 Python 3.12 설치(이 PC에 이미 있음), 이 PC에서 1단계 실제 실행(py 기본값·VS Code 설정이 바뀌므로). 리허설 PC에서 확인 필요.
 - 남은 점: 0단계 ipykernel 오프라인 묶음은 Python 3.12 전용이라, 3.12가 없는 PC에서 다른 Python 커널로 열 때 VS Code의 ipykernel 설치가 실패하면 쓸 수 없음.
 
+## .env 변수명 확정
+
+- `LITELLM_BASE_URL`(Gateway 주소), `LITELLM_API_KEY`(Virtual Key)로 노트북에 반영. 이제 8단계가 ⚠️ 없이 `.env`(`LITELLM_BASE_URL=https://gateway.security.samsungds.net`, `LITELLM_API_KEY=`)를 만든다.
+- 교안 웹앱 사전 제작 프롬프트: "Gateway 주소와 키는 .env의 LITELLM_BASE_URL, LITELLM_API_KEY에서 읽고 코드에 쓰지 않기"
+- 검증: 임시 실습 폴더에서 8단계 실행 → .env 내용 확인, 키 자리 비었을 때 ❌ 안내, 가짜 키를 넣고 다시 실행 → ✅(키 값은 출력 안 됨).
+- 그림 다시 찍기는 시도했으나 PC 메모리 부족(여유 약 0.8GB)으로 시험 VS Code가 노트북을 그리지 못해 중단. 그림은 예전 그대로.
+
 ## 남은 일
 
-1. `[확인 필요]` 값(Gateway 주소 변수명, Virtual Key 변수명, Claude Code 설치 방식, Skill 배포 위치)은 **교안 최종 확정 직전에** 한꺼번에 반영. 변수명이 정해지기 전에는 노트북 8단계(.env)가 ⚠️로 남는다
+1. `[확인 필요]` 값(Claude Code 설치 방식, Skill 배포 위치)은 **교안 최종 확정 직전에** 한꺼번에 반영
+4. 교안 8단계 그림 2장(첫 실행 결과, .env 편집기)에 예전 변수명(`AX_VIRTUAL_KEY`, `AX_GATEWAY_URL=https://gateway.example.com`)이 보임 → `LITELLM_*`로 다시 캡처 필요(리허설 PC에서 찍으면 개발 PC 경로도 함께 해결)
 2. 1·2교시 실습 콘텐츠(1-A~1-D, 2-A~2-D, 웹앱)는 최종 확정 전에 사용자가 수정 예정
 3. 블록 5 마무리(실습 일정 전체 마무리) 내용 구성. 오늘의 일정 표에 블록 4·5 시간 추가 여부
