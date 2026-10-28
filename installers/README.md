@@ -1,6 +1,6 @@
 # 설치파일
 
-Python·Node.js는 **노트북이 공식 사이트에서 직접 받아** 설치합니다(2026-10-27 결정). 메일로 보내는 것은 Skill 압축본(`ai-gateway-skills…zip`)과 Virtual Key뿐입니다. 교육생 PC는 Windows 11 64비트입니다.
+Python·Node.js는 **노트북이 공식 사이트에서 직접 받아** 설치합니다(2026-10-27 결정). 메일로 보내는 것은 Skill 압축본(`ai-gateway-skills…zip`), Virtual Key, 그리고 노트북이 안 될 때 쓰는 PowerShell 단계표(저장소 맨 위 `pc_setup_powershell.html`을 브라우저로 열어 메일 본문에 붙여 넣음, 같은 지문으로 직접 받아 설치)입니다. 교육생 PC는 Windows 11 64비트입니다.
 
 ## 노트북이 받는 파일 (저장소에 두지 않음)
 
