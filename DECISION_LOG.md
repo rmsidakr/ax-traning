@@ -11,7 +11,7 @@
 | `instructor/1교시_강사시연.md` | 강사·보조강사용 1교시 시연 자료(시연 시나리오·진행 대본·업무별 메모). 교안에는 넣지 않음 |
 | `instructor/2교시_강사시연.md` | 강사·보조강사용 2교시 자료(사전 제작 = 리허설, 진행 대본, 말로 전할 것, 보조강사용 예시 문장, 도구 구조와 Gateway 부르는 방식) |
 | `tools/demo_tool/` | 2교시 강사 시연과 '완성 모습' 화면에 쓰는 예시 도구 '보안정책 개선 검토 도우미'(가상 값, 실제 호출 없음) |
-| `tools/` | 점검 코드 원본(`pc_setup_core.py`)과 노트북 빌드(`build_notebook.py`), 실시간 미리보기 서버(`live_server.py`), Chrome 캡처 검증(`chrome_shot.sh`), 7단계 설치 검증(`test_step7.py`) |
+| `tools/` | 점검 코드 원본(`pc_setup_core.py`)과 노트북 빌드(`build_notebook.py`), 실시간 미리보기 서버(`live_server.py`), Chrome 캡처 검증(`chrome_shot.sh`), 6단계 Skill·Virtual Key 설치 검증(`test_step6.py`, 실제 배포 zip 경로를 넘겨 실행) |
 
 ---
 
@@ -81,9 +81,9 @@
 
 ## 3. `[확인 필요]` 자리표시자 목록
 
-> 2026-10-26 기준으로 아래 표의 항목은 모두 확정됐고, 교안에 남은 `[확인 필요]`는 **웹앱에서 Gateway MCP 호출 방법** 하나뿐입니다. 최신 상태는 `REVIEW_LOG.md`를 봅니다.
+> 2026-10-26 기준으로 아래 표의 항목은 모두 확정됐고, 교안에 남은 `[확인 필요]`는 **0개**입니다(마지막 하나였던 웹앱에서 Gateway MCP 호출 방법도 같은 날 확정). 최신 상태는 `REVIEW_LOG.md`를 봅니다.
 > 특히 Skill 관련 값은 실제 배포본 확인으로 바뀌었습니다: 배포 묶음 `ai-gateway-skills*.zip` → `~/.claude/ai-gateway-skills`에 해제 → `install.ps1` 실행, 설치되는 Skill 이름은 `litellm-gateway`, 키는 `~/.claude/litellm-gateway.env`.
-> (같은 날 이 하나도 해소. 2026-10-28 2교시 재구성으로 교안의 웹앱 시연 칸은 없어지고, 호출 방식은 `instructor/2교시_강사시연.md` 6절로 옮김)
+> (2026-10-28 2교시 재구성으로 교안의 웹앱 시연 칸은 없어지고, 호출 방식은 `instructor/2교시_강사시연.md` 6절로 옮김)
 
 | 항목 (지난 기록) | 위치 |
 |---|---|
