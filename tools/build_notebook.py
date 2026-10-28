@@ -12,16 +12,16 @@ CORE = os.path.join(ROOT, "tools", "pc_setup_core.py")
 
 # 단계 칸에 보일 설명(무엇을 확인하는지). 점검 코드는 pc_setup_core.py의 _step번호 함수
 STEP_NOTES = {
-    1: "Python과 VS Code의 Python·Jupyter 확장을 확인하고, Python 3.12가 없으면 설치해 기본 Python으로 설정합니다",
-    2: "VS Code가 설치돼 있는지, 버전이 무엇인지 확인합니다",
-    3: "Claude Code가 설치돼 있는지, 버전이 무엇인지 확인합니다",
-    4: "Claude Code가 사내 AI(AWS Bedrock)를 쓰도록 설정돼 있는지 확인합니다",
-    5: "Node.js가 설치돼 있는지 확인하고, 없으면 설치합니다",
-    6: "실습 폴더(ax-training)가 있는지 확인하고, Claude Code가 .env를 읽지 못하게 막는 설정을 만듭니다",
-    7: "실습용 Skill을 설치하고, .env가 없으면 키 자리를 비운 파일을 만든 뒤 Virtual Key가 들어갔는지 확인합니다 (키 내용은 화면에 나오지 않습니다)",
-    8: "Splunk 조회 프롬프트를 복사합니다 (Claude Code에 붙여 넣고 결과를 확인)",
-    9: "일정 조회 프롬프트를 복사합니다 (Claude Code에 붙여 넣고 결과를 확인)",
-    10: "0~7단계 결과를 한 표로 모아 보여 줍니다",
+    1: "Python과 VS Code의 Python·Jupyter 확장을 확인하고, Python 3.12가 없으면 공식 사이트에서 받아 설치한 뒤 기본 Python으로 설정하고 노트북 커널을 준비합니다",
+    2: "Claude Code가 설치돼 있는지, 버전이 무엇인지 확인합니다",
+    3: "Claude Code가 사내 AI를 쓰도록 설정돼 있는지 확인합니다",
+    4: "Node.js가 설치돼 있는지 확인하고, 없으면 공식 사이트에서 받아 설치합니다",
+    5: "실습 폴더(ax-training)가 있는지 확인하고, Claude Code가 키 파일을 읽지 못하게 막는 설정을 만듭니다",
+    6: "배포받은 Skill 압축본을 찾아 설치하고, Virtual Key가 들어갔는지 확인합니다 (키 내용은 화면에 나오지 않습니다)",
+    7: "Splunk 조회 프롬프트를 복사합니다 (Claude Code에 붙여 넣고 결과를 확인)",
+    8: "일정 조회 프롬프트를 복사합니다 (Claude Code에 붙여 넣고 결과를 확인)",
+    9: "0~6단계 결과를 한 표로 모아 보여 줍니다",
+    10: "오늘 설치한 Skill과 Virtual Key를 지웁니다 (▶ 한 번은 목록만, 한 번 더 누르면 삭제)",
 }
 
 LOADER = '''# 0단계: 점검 도구를 불러오고, 노트북이 실행되는지 확인합니다 (아래 코드는 읽지 않아도 됩니다)

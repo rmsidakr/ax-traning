@@ -4,11 +4,14 @@
 
 | 파일 | 내용 |
 |---|---|
-| `ax_training.html` | 단일 교안 HTML. 빔프로젝터로 띄움. 사전 안내, PC 셋팅, 1교시, 2교시(실습 콘텐츠와 웹앱 제작 시나리오 포함) |
-| `pc_setup.ipynb` | 수강생 배포용 셋팅 노트북. 0~14단계, 맨 끝에 실습 프롬프트 모음 |
+| `ax_training.html` | 단일 교안 HTML. 빔프로젝터로만 띄움(교육생에게 주지 않음). 사전 안내, PC 셋팅, 1교시, 2교시(내 업무 흐름을 버튼 하나로 도는 도구: 과제·노하우와 완성 모습 화면), 마무리 |
+| `pc_setup.ipynb` | 수강생 배포용 셋팅 노트북. 0~10단계(10단계는 오후 그룹별 실습 끝에 키 삭제) |
 | `DECISION_LOG.md` | 이 문서 |
 | `REVIEW_LOG.md` | 블록별 리뷰 수정 이력과 이어서 작업하는 방법 (이 문서보다 최신) |
-| `tools/` | 실시간 미리보기 서버(`live_server.py`), Chrome 캡처 검증(`chrome_shot.sh`) |
+| `instructor/1교시_강사시연.md` | 강사·보조강사용 1교시 시연 자료(시연 시나리오·진행 대본·업무별 메모). 교안에는 넣지 않음 |
+| `instructor/2교시_강사시연.md` | 강사·보조강사용 2교시 자료(사전 제작 = 리허설, 진행 대본, 말로 전할 것, 보조강사용 예시 문장, 도구 구조와 Gateway 부르는 방식) |
+| `tools/demo_tool/` | 2교시 강사 시연과 '완성 모습' 화면에 쓰는 예시 도구 '보안정책 개선 검토 도우미'(가상 값, 실제 호출 없음) |
+| `tools/` | 점검 코드 원본(`pc_setup_core.py`)과 노트북 빌드(`build_notebook.py`), 실시간 미리보기 서버(`live_server.py`), Chrome 캡처 검증(`chrome_shot.sh`), 7단계 설치 검증(`test_step7.py`) |
 
 ---
 
@@ -78,7 +81,11 @@
 
 ## 3. `[확인 필요]` 자리표시자 목록
 
-| 항목 | 위치 |
+> 2026-10-26 기준으로 아래 표의 항목은 모두 확정됐고, 교안에 남은 `[확인 필요]`는 **웹앱에서 Gateway MCP 호출 방법** 하나뿐입니다. 최신 상태는 `REVIEW_LOG.md`를 봅니다.
+> 특히 Skill 관련 값은 실제 배포본 확인으로 바뀌었습니다: 배포 묶음 `ai-gateway-skills*.zip` → `~/.claude/ai-gateway-skills`에 해제 → `install.ps1` 실행, 설치되는 Skill 이름은 `litellm-gateway`, 키는 `~/.claude/litellm-gateway.env`.
+> (같은 날 이 하나도 해소. 2026-10-28 2교시 재구성으로 교안의 웹앱 시연 칸은 없어지고, 호출 방식은 `instructor/2교시_강사시연.md` 6절로 옮김)
+
+| 항목 (지난 기록) | 위치 |
 |---|---|
 | Gateway 주소 / Gateway 주소 변수명 / Virtual Key 변수명 | 노트북 0·10단계, 교안 .env 설정, 프롬프트 ENV |
 | Virtual Key 전달 메일 제목·발송 시점 | 교안 .env 설정 |

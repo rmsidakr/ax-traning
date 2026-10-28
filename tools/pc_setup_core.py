@@ -9,23 +9,26 @@ from pathlib import Path
 
 # ── 강사가 채울 값 ─────────────────────────────────────────
 PRACTICE_DIR = Path.home() / "ax-training"               # 실습 폴더
-SKILL_NAME = "ai-gateway-skills"
-SKILL_SOURCE = r"[확인 필요: Skill 배포 위치]"           # 배포받은 Skill 폴더 경로
+SKILL_BUNDLE = "ai-gateway-skills"                       # 배포 묶음(저장소) 이름
+SKILL_ZIP_GLOB = "ai-gateway-skills*.zip"                # 메일로 받는 압축 파일 이름
+SKILL_REPO_DIR = Path.home() / ".claude" / "ai-gateway-skills"   # 압축을 푸는 고정 위치(링크 대상이라 지우면 안 됨)
+SKILL_NAME = "litellm-gateway"                           # 묶음 안에 들어 있는, 실제로 설치되는 Skill 이름
 SKILL_INSTALL_DIR = Path.home() / ".claude" / "skills"  # Skill 설치 위치
-PY_EXE = "python-3.12.10-amd64.exe"                      # 메일로 배포하는 Python 3.12 설치파일
+PY_EXE = "python-3.12.10-amd64.exe"                      # 공식 사이트에서 받는 Python 3.12 설치파일
 PY_EXE_SHA256 = "67b5635e80ea51072b87941312d00ec8927c4db9ba18938f7ad2d27b328b95fb"
 PY_EXE_URL = "https://www.python.org/ftp/python/3.12.10/" + PY_EXE
 NEED_NODE = True                                         # 실습에 Node.js가 필요함
-NODE_MSI = "node-v24.22.1-x64.msi"                       # 메일로 배포하는 Node.js 설치파일
+NODE_MSI = "node-v24.22.1-x64.msi"                       # 공식 사이트에서 받는 Node.js 설치파일
 NODE_MSI_SHA256 = "3bda4baf1ee709b33cf920dd633106ddb23951e322bff9c03ec9f64ab8981b01"
 NODE_MSI_URL = "https://nodejs.org/dist/v24.22.1/" + NODE_MSI
+KEY_FILE = Path.home() / ".claude" / "litellm-gateway.env"   # Skill이 키를 읽는 파일 (배포본 install.ps1이 만든다)
 ENV_URL_NAME = "LITELLM_BASE_URL"
 ENV_URL = "https://gateway.security.samsungds.net"
 ENV_KEY_NAME = "LITELLM_API_KEY"
 # ─────────────────────────────────────────────────────────
 
-STEP_ORDER = ["준비", "Python", "VS Code 확장", "Python 3.12", "VS Code", "Claude Code", "Bedrock 설정",
-              "Node.js", "실습 폴더", "Skill", ".env"]
+STEP_ORDER = ["준비", "Python", "VS Code 확장", "Python 3.12", "Claude Code", "사내 AI 연결",
+              "Node.js", "실습 폴더", "Skill", "Virtual Key"]
 MARK = {True: "✅", False: "❌", None: "⚠️"}
 RESULTS = globals().get("RESULTS", {})
 
@@ -46,33 +49,56 @@ def run(cmd, timeout=60):
     except subprocess.TimeoutExpired:
         return False, "시간 초과"
 
+def run_ps(script, timeout=60):
+    # PowerShell 명령을 실행한다. 한글이 깨지지 않게 출력을 UTF-8로 맞추고, 그래도 깨지면 PC 기본 인코딩으로 읽는다
+    import locale
+    cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command",
+           "[Console]::OutputEncoding=[Text.Encoding]::UTF8; " + script]
+    try:
+        p = subprocess.run(cmd, capture_output=True, timeout=timeout)
+    except FileNotFoundError:
+        return False, "PowerShell을 찾을 수 없음"
+    except subprocess.TimeoutExpired:
+        return False, "시간 초과"
+    raw = (p.stdout or b"") + (p.stderr or b"")
+    try:
+        out = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        out = raw.decode(locale.getpreferredencoding(False), errors="replace")
+    return p.returncode == 0, out.strip()
+
 def find_installer(name, sha256, url):
-    # 메일로 받은 설치파일을 다운로드·바탕화면·노트북 폴더에서 찾고, 없으면 공식 사이트에서 받는다.
-    # 어느 쪽이든 SHA-256 지문이 배포 파일과 같을 때만 돌려준다
+    # 설치파일을 공식 사이트에서 받는다. 받지 못했을 때만 다운로드·바탕화면·노트북 폴더에 같은 파일이 있는지 본다.
+    # 어느 쪽이든 SHA-256 지문이 확인한 버전과 같을 때만 돌려준다
     import hashlib, tempfile, urllib.request
 
     def same_file(path):
-        return hashlib.sha256(path.read_bytes()).hexdigest() == sha256
+        try:
+            return hashlib.sha256(path.read_bytes()).hexdigest() == sha256
+        except OSError:
+            return False
 
+    cached = Path(tempfile.gettempdir()) / name
+    if cached.exists() and same_file(cached):   # 앞서 받아 둔 파일
+        return cached
+    print(f"공식 사이트에서 {name}을 받습니다 ... ({url})")
+    try:
+        urllib.request.urlretrieve(url, cached)
+        if same_file(cached):
+            return cached
+        print("   받은 파일이 확인한 버전과 다릅니다. 받다가 끊겼을 수 있습니다.")
+    except Exception as e:
+        print(f"   받지 못했습니다: {e}")
     notebook_dir = Path(globals().get("__vsc_ipynb_file__", "pc_setup.ipynb")).resolve().parent
     for folder in (Path.home() / "Downloads", Path.home() / "Desktop", notebook_dir):
         path = folder / name
         if path.exists() and same_file(path):
+            print(f"   대신 이미 가진 파일을 씁니다: {path}")
             return path
-    print(f"받은 설치파일({name})을 찾지 못해 공식 사이트에서 받습니다 ...")
-    path = Path(tempfile.gettempdir()) / name
-    try:
-        urllib.request.urlretrieve(url, path)
-    except Exception as e:
-        print(f"   받지 못했습니다: {e}")
-        return None
-    return path if same_file(path) else None
-
-def is_placeholder(value):
-    return isinstance(value, str) and value.startswith("[확인 필요")
+    return None
 
 def read_env(path):
-    # .env 파일을 읽어 {변수명: 값} 으로 돌려준다 (값은 화면에 출력하지 않는다)
+    # KEY=VALUE 형식 파일을 읽어 {변수명: 값} 으로 돌려준다 (값은 화면에 출력하지 않는다)
     values = {}
     if path.exists():
         for line in path.read_text(encoding="utf-8-sig", errors="replace").splitlines():
@@ -198,7 +224,7 @@ def _step1():
             exe, ver = find_py312()
     if not exe:
         hint = ("같은 칸을 다시 ▶ 누르세요. 그래도 ❌이면 보조강사를 불러 주세요." if installer else
-                f"메일로 받은 {PY_EXE}를 다운로드 폴더에 저장하고 같은 칸을 다시 ▶ 누르세요. 그래도 ❌이면 보조강사를 불러 주세요.")
+                "사내망 연결을 확인하고 같은 칸을 다시 ▶ 누르세요. 그래도 ❌이면 보조강사를 불러 주세요.")
         show("Python 3.12", False, "Python 3.12가 설치돼 있지 않습니다.", hint)
         return
     try:
@@ -212,25 +238,33 @@ def _step1():
         show("Python 3.12", False, f"Python 3.12는 있지만 다른 Python이 먼저 잡힙니다: {first}",
              "PC 전체 설정(시스템 PATH)이라 관리자 권한이 필요합니다. 보조강사를 불러 주세요.")
         return
+    kernel = ensure_ipykernel(exe)
     if installer or changed:
         print("👉 기본 Python을 3.12로 설정했습니다. 터미널이 알아보도록 VS Code를 완전히 닫았다 다시 열고 0단계부터 다시 ▶를 누르세요.")
-    show("Python 3.12", True, f"기본 Python: Python {ver} — 위치: {exe}")
+    show("Python 3.12", True, f"기본 Python: Python {ver} — 위치: {exe}"
+         + ("" if kernel else " (노트북 커널 준비는 못 했습니다 — 커널을 3.12로 바꿀 때 VS Code 안내를 따르세요)"))
 
 
-# 2단계: VS Code 확인
+def ensure_ipykernel(exe):
+    # 노트북을 3.12 커널로 열 수 있게 ipykernel을 넣어 둔다.
+    # 사내 pip 저장소에는 ipykernel이 없어서 공식 PyPI를 지정해 받는다(그래서 --index-url을 쓴다).
+    ok, _ = run([str(exe), "-c", "import ipykernel"], timeout=60)
+    if ok:
+        return True
+    print("노트북 커널(ipykernel)을 공식 PyPI에서 받아 설치합니다 ...")
+    base = [str(exe), "-m", "pip", "install", "--quiet", "--index-url", "https://pypi.org/simple", "ipykernel"]
+    ok, out = run(base, timeout=600)
+    if not ok:   # 관리자 권한이 필요한 위치에 깔린 Python이면 이 사용자에게만 설치한다
+        ok, out = run(base + ["--user"], timeout=600)
+    if not ok:
+        for line in out.splitlines()[-3:]:
+            if line.strip():
+                print(f"   {line.strip()}")
+    return run([str(exe), "-c", "import ipykernel"], timeout=60)[0]
+
+
+# 2단계: Claude Code 확인
 def _step2():
-    path = shutil.which("code")
-    if path:
-        ok, out = run([path, "--version"])
-        show("VS Code", ok, f"VS Code {out.splitlines()[0] if ok and out else '버전 확인 실패'}",
-             "VS Code를 완전히 닫았다가 다시 열고 0단계부터 다시 ▶를 누르세요.")
-    else:
-        show("VS Code", False, "VS Code 명령(code)을 찾지 못했습니다.",
-             "VS Code를 완전히 닫았다가 다시 열고 0단계부터 다시 ▶를 누르세요. 그래도 ❌이면 보조강사를 불러 주세요.")
-
-
-# 3단계: Claude Code 확인
-def _step3():
     path = shutil.which("claude")
     fallback = Path.home() / ".local" / "bin" / "claude.exe"
     if path:
@@ -245,31 +279,49 @@ def _step3():
              "보조강사를 불러 주세요.")
 
 
-# 4단계: Bedrock 연결 설정 확인 (환경변수 → Claude Code 설정 파일 순서로 찾는다)
-def _step4():
-    keys = ("CLAUDE_CODE_USE_BEDROCK", "AWS_REGION")
-    found = {k: (os.environ[k], "환경변수") for k in keys if os.environ.get(k)}
+# 3단계: 사내 AI 연결 설정 확인. 사내 배포는 두 가지 방식이 쓰여서 둘 다 인정한다.
+#        ① 사내 AI Gateway: ANTHROPIC_BASE_URL + 키를 공급하는 apiKeyHelper(GatewayCLI)
+#        ② AWS Bedrock: CLAUDE_CODE_USE_BEDROCK=1
+#        값은 환경변수 → Claude Code 설정 파일(~/.claude/settings.json) 순서로 찾는다. 키 값은 보지 않는다.
+def _step3():
     settings_file = Path.home() / ".claude" / "settings.json"
     try:
-        settings_env = json.loads(settings_file.read_text(encoding="utf-8")).get("env", {}) if settings_file.exists() else {}
+        settings = json.loads(settings_file.read_text(encoding="utf-8")) if settings_file.exists() else {}
     except Exception:
-        settings_env = {}
-    for k in keys:
-        if k not in found and settings_env.get(k):
-            found[k] = (str(settings_env[k]), "settings.json")
+        settings = {}
+    settings_env = settings.get("env", {}) if isinstance(settings.get("env"), dict) else {}
 
-    use, where = found.get("CLAUDE_CODE_USE_BEDROCK", ("", ""))
-    if use.lower() in ("1", "true"):
-        region = found.get("AWS_REGION", ("미확인", ""))[0]
-        show("Bedrock 설정", True, f"Bedrock 사용 설정 확인 ({where}), 리전: {region}")
+    def value(name):
+        # (값, 어디서 찾았는지)
+        if os.environ.get(name):
+            return os.environ[name], "환경변수"
+        if settings_env.get(name):
+            return str(settings_env[name]), "settings.json"
+        return "", ""
+
+    base_url, base_where = value("ANTHROPIC_BASE_URL")
+    use_bedrock, bedrock_where = value("CLAUDE_CODE_USE_BEDROCK")
+    helper = str(settings.get("apiKeyHelper") or "").strip().strip('"')
+
+    if base_url:
+        host = base_url.split("//")[-1].split("/")[0]
+        helper_ok = bool(helper) and Path(helper).exists()
+        msg = f"사내 AI Gateway 연결 확인 ({base_where}): {host}"
+        if helper:   # 키를 공급하는 프로그램까지 있으면 함께 확인
+            msg += " / 키 공급 프로그램 " + ("확인" if helper_ok else "없음")
+        show("사내 AI 연결", True if (not helper or helper_ok) else None, msg,
+             "키 공급 프로그램이 설치돼 있지 않습니다. 5단계에서 Claude Code가 대답하면 정상입니다.")
+    elif use_bedrock.lower() in ("1", "true"):
+        region = value("AWS_REGION")[0] or "미확인"
+        show("사내 AI 연결", True, f"AWS Bedrock 연결 확인 ({bedrock_where}), 리전: {region}")
     else:
-        show("Bedrock 설정", None, "이 방법으로는 Bedrock 설정을 찾지 못했습니다.",
-             "사내 설정 방식이 다를 수 있습니다. 6단계에서 Claude Code가 대답하면 정상입니다.")
+        show("사내 AI 연결", None, "사내 AI 연결 설정을 찾지 못했습니다.",
+             "사내 배포 방식이 다를 수 있습니다. 5단계에서 Claude Code가 대답하면 정상입니다.")
 
 
-# 5단계: Node.js 확인 → 없으면 설치 → 다시 확인
-#        설치파일은 find_installer로 찾는다(SHA-256 지문이 배포 파일과 같을 때만 설치).
-def _step5():
+# 4단계: Node.js 확인 → 없으면 설치 → 다시 확인
+#        설치파일은 find_installer로 공식 사이트에서 받는다(SHA-256 지문이 확인한 버전과 같을 때만 설치).
+def _step4():
     def node_version():
         for p in (shutil.which("node"), r"C:\Program Files\nodejs\node.exe"):
             if p and Path(p).exists():
@@ -301,15 +353,17 @@ def _step5():
     if msi:   # 설치파일은 있었는데 설치가 안 됨 → 다시 ▶하고 승인 창에서 '예'
         hint = "같은 칸을 다시 ▶ → 관리자 승인 창에서 '예'를 누르세요. 그래도 ❌이면 보조강사를 불러 주세요."
     else:     # 설치파일을 찾지도 받지도 못함
-        hint = (f"메일로 받은 {NODE_MSI}를 다운로드 폴더에 저장하고 같은 칸을 다시 ▶ 누르세요. "
+        hint = ("사내망 연결을 확인하고 같은 칸을 다시 ▶ 누르세요. "
                 "그래도 ❌이면 보조강사를 불러 주세요.")
     show("Node.js", bool(ver), f"Node.js {ver}" if ver else "Node.js가 설치돼 있지 않습니다.", hint)
 
 
-# 6단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
-def _step6():
-    #        + Claude Code가 .env(키 파일)를 읽지 못하게 실습 폴더 설정에 읽기 금지 규칙을 넣는다
-    ENV_DENY = ["Read(./.env)", "Read(./.env.*)"]
+# 5단계: 실습 폴더 확인 (폴더는 위 안내대로 터미널에서 직접 만든다)
+def _step5():
+    #        + Claude Code가 키 파일을 읽지 못하게 실습 폴더 설정에 읽기 금지 규칙을 넣는다.
+    #          키는 홈의 ~/.claude/litellm-gateway.env 에 들어가고(Skill이 읽는 파일), 실습 폴더의 .env 도 함께 막는다.
+    #          규칙이 있으면 승인 창 없이 바로 막힌다(규칙이 없으면 승인 요청이 떠서 교육생이 승인할 수 있다)
+    ENV_DENY = ["Read(~/.claude/litellm-gateway.env)", "Read(./.env)", "Read(./.env.*)"]
 
     if not PRACTICE_DIR.is_dir():
         show("실습 폴더", False, f"실습 폴더가 없습니다: {PRACTICE_DIR}",
@@ -322,60 +376,142 @@ def _step6():
             deny += [rule for rule in ENV_DENY if rule not in deny]
             settings_path.parent.mkdir(exist_ok=True)
             settings_path.write_text(json.dumps(settings, ensure_ascii=False, indent=2), encoding="utf-8")
-            show("실습 폴더", True, f"실습 폴더 확인: {PRACTICE_DIR} (.env 읽기 금지 설정됨)")
+            show("실습 폴더", True, f"실습 폴더 확인: {PRACTICE_DIR} (키 파일 읽기 금지 설정됨)")
         except Exception as e:
-            show("실습 폴더", False, f"실습 폴더는 있지만 .env 읽기 금지 설정을 만들지 못했습니다: {e}",
+            show("실습 폴더", False, f"실습 폴더는 있지만 키 파일 읽기 금지 설정을 만들지 못했습니다: {e}",
                  "화면을 그대로 두고 보조강사를 불러 주세요.")
 
 
-# 7단계 앞부분: Skill 확인 → 없으면 설치(배포 폴더 복사) → 다시 확인
+# 6단계 앞부분: Skill 확인 → 없으면 배포 압축본(zip)을 찾아 고정 위치에 풀고 install.ps1 실행 → 다시 확인
 def _skill():
-    if is_placeholder(SKILL_NAME):
-        show("Skill", None, "Skill 이름이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
-    else:
-        target = SKILL_INSTALL_DIR / SKILL_NAME
-        if not (target / "SKILL.md").exists():
-            source = Path(SKILL_SOURCE)
-            if not is_placeholder(SKILL_SOURCE) and (source / "SKILL.md").exists():
-                print(f"설치 중: {source} → {target}")
-                shutil.copytree(source, target, dirs_exist_ok=True)
-            else:
-                print(f"Skill 배포 위치를 찾지 못했습니다: {SKILL_SOURCE}")
-        ok = (target / "SKILL.md").exists()
-        show("Skill", ok, f"Skill 설치됨: {target}" if ok else "Skill이 설치되지 않았습니다.",
-             "보조강사를 불러 주세요. [확인 필요: Skill 설치 방법]")
+    target = SKILL_INSTALL_DIR / SKILL_NAME
+    if not (target / "SKILL.md").exists():
+        repo = _skill_repo()
+        if repo:
+            _run_installer(repo)                      # 배포본 공식 설치 (링크 + 키 파일 자리)
+            if not (target / "SKILL.md").exists():
+                _copy_skills(repo)                    # 예비: 링크가 안 되면 복사해서 설치
+    ok = (target / "SKILL.md").exists()
+    show("Skill", ok, f"Skill 설치됨: {target}" if ok else f"Skill({SKILL_NAME})이 설치되지 않았습니다.",
+         f"메일로 받은 {SKILL_BUNDLE} 압축 파일을 다운로드 폴더에 저장하고 이 칸의 ▶를 다시 누르세요. "
+         "그래도 ❌이면 보조강사를 불러 주세요.")
 
 
-# 7단계 뒷부분: .env 만들기·확인 (키 자리를 비운 파일은 노트북이 만들고, 키는 사람이 직접 넣는다. 키 값은 출력하지 않는다)
-#         Claude Code는 6단계 설정 때문에 .env를 읽지 못한다
+def _installer_dir(root):
+    # install.ps1 이 있는 폴더를 찾는다 (GitHub 압축본은 폴더가 한 겹 더 들어가 있다)
+    if not root.is_dir():
+        return None
+    for path in [root] + sorted(p for p in root.iterdir() if p.is_dir()):
+        if (path / "install.ps1").exists():
+            return path
+    return None
+
+
+def _skill_repo():
+    # 이미 풀어 둔 폴더가 있으면 그대로 쓰고, 없으면 배포 압축본을 찾아 고정 위치에 푼다.
+    # (install.ps1 이 이 폴더를 링크 대상으로 삼으므로 지우거나 옮기면 Skill이 깨진다)
+    repo = _installer_dir(SKILL_REPO_DIR)
+    if repo:
+        return repo
+    zip_path = _find_skill_zip()
+    if not zip_path:
+        print(f"배포 압축 파일({SKILL_ZIP_GLOB})을 다운로드·바탕화면·노트북 폴더에서 찾지 못했습니다.")
+        return None
+    print(f"압축을 풉니다: {zip_path.name} → {SKILL_REPO_DIR}")
+    try:
+        import zipfile
+        SKILL_REPO_DIR.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(zip_path) as z:
+            z.extractall(SKILL_REPO_DIR)
+    except Exception as e:
+        print(f"   압축을 풀지 못했습니다: {e}")
+        return None
+    repo = _installer_dir(SKILL_REPO_DIR)
+    if not repo:
+        print(f"   압축 안에서 install.ps1 을 찾지 못했습니다: {SKILL_REPO_DIR}")
+    return repo
+
+
+def _find_skill_zip():
+    # 메일로 받은 Skill 압축본을 다운로드·바탕화면·노트북 폴더에서 찾는다 (여러 개면 가장 최근 것)
+    notebook_dir = Path(globals().get("__vsc_ipynb_file__", "pc_setup.ipynb")).resolve().parent
+    found = []
+    for folder in (Path.home() / "Downloads", Path.home() / "Desktop", notebook_dir):
+        if folder.is_dir():
+            found += [p for p in folder.glob(SKILL_ZIP_GLOB) if p.is_file()]
+    return max(found, key=lambda p: p.stat().st_mtime) if found else None
+
+
+def _run_installer(repo):
+    # 배포본의 설치 스크립트를 그대로 실행한다 (skills/* 를 ~/.claude/skills 에 링크하고 키 파일 자리를 만든다)
+    print(f"설치 중: {repo / 'install.ps1'}")
+    ok, out = run_ps(f"& '{repo / 'install.ps1'}'", timeout=180)
+    for line in out.splitlines():
+        if line.strip():
+            print(f"   {line.strip()}")
+    if not ok:
+        print("   설치 스크립트가 끝나지 않았습니다. 노트북이 직접 설치해 봅니다.")
+
+
+def _copy_skills(repo):
+    # 예비 경로: 링크 설치가 안 되면 skills/* 를 ~/.claude/skills 로 복사한다
+    src_root = repo / "skills"
+    if not src_root.is_dir():
+        print(f"   배포본에 skills 폴더가 없습니다: {src_root}")
+        return
+    for src in src_root.iterdir():
+        if not (src / "SKILL.md").exists():
+            continue
+        dest = SKILL_INSTALL_DIR / src.name
+        try:
+            if dest.is_dir():
+                shutil.rmtree(dest, ignore_errors=True)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(src, dest, dirs_exist_ok=True)
+            print(f"   복사해서 설치: {dest}")
+        except Exception as e:
+            print(f"   복사하지 못했습니다 ({dest}): {e}")
+
+
+# 6단계 뒷부분: 키 파일 확인 (키 자리를 비운 파일은 설치 스크립트가 만들고, 키는 사람이 직접 넣는다. 키 값은 출력하지 않는다)
+#         Skill은 이 파일에서만 키를 읽고, Claude Code는 5단계 설정 때문에 이 파일을 읽지 못한다
 def _env():
-    env_path = PRACTICE_DIR / ".env"
-    if is_placeholder(ENV_KEY_NAME) or is_placeholder(ENV_URL_NAME) or is_placeholder(ENV_URL):
-        show(".env", None, ".env 변수 이름이 아직 정해지지 않았습니다.", "강사 안내를 기다리세요.")
-        return
-    if not PRACTICE_DIR.is_dir():
-        show(".env", False, f"실습 폴더가 없습니다: {PRACTICE_DIR}", "6단계를 먼저 ✅로 만드세요.")
-        return
-    if not env_path.exists():
-        env_path.write_text(f"{ENV_URL_NAME}={ENV_URL}\n{ENV_KEY_NAME}=\n", encoding="utf-8")
-        print("키 자리를 비워 둔 .env 파일을 만들었습니다.")
-    env = read_env(env_path)
-    url, key = env.get(ENV_URL_NAME, ""), env.get(ENV_KEY_NAME, "")
-    if not url:
-        show(".env", False, f".env에 Gateway 주소({ENV_URL_NAME})가 없습니다.", "보조강사를 불러 주세요.")
-    elif not key or key.startswith("["):
-        print(f"👉 아래 파란 경로를 Ctrl + 클릭해 .env를 열고, {ENV_KEY_NAME}= 바로 뒤에 Virtual Key를 붙여 넣고 Ctrl + S")
-        print(f"   {env_path}")
-        show(".env", False, "아직 Virtual Key가 비어 있습니다.", "키를 넣고 저장한 뒤 이 칸의 ▶를 다시 누르세요.")
+    if not KEY_FILE.exists():
+        try:
+            KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+            KEY_FILE.write_text(f"# 본인 Virtual Key를 넣으세요 (이 파일은 Skill만 읽습니다)\n"
+                                f"{ENV_KEY_NAME}=\n{ENV_URL_NAME}={ENV_URL}\n", encoding="utf-8")
+            _lock_key_file()
+            print("키 자리를 비워 둔 키 파일을 만들었습니다.")
+        except Exception as e:
+            show("Virtual Key", False, f"키 파일을 만들지 못했습니다: {e}", "보조강사를 불러 주세요.")
+            return
+    env = read_env(KEY_FILE)
+    key, url = env.get(ENV_KEY_NAME, ""), env.get(ENV_URL_NAME, "")
+    if not url:   # 주소가 빠져 있으면 채워 둔다 (Skill 기본값과 같은 주소)
+        with KEY_FILE.open("a", encoding="utf-8") as f:
+            f.write(f"{ENV_URL_NAME}={ENV_URL}\n")
+        url = ENV_URL
+    if not key or key.startswith("["):
+        print(f"👉 아래 파란 경로를 Ctrl + 클릭해 키 파일을 열고, {ENV_KEY_NAME}= 바로 뒤에 Virtual Key를 붙여 넣고 Ctrl + S")
+        print(f"   {KEY_FILE}")
+        show("Virtual Key", False, "아직 Virtual Key가 비어 있습니다.", "키를 넣고 저장한 뒤 이 칸의 ▶를 다시 누르세요.")
     else:
-        show(".env", True, f"Virtual Key 입력됨 (●●●● {len(key)}자) / Gateway 주소: {url}")
+        show("Virtual Key", True, f"Virtual Key 입력됨 (●●●● {len(key)}자) / Gateway 주소: {url}")
 
 
-# 7단계: Skill 설치와 Virtual Key 연결 → 둘 다 ✅이면 Claude Code를 한 번 다시 켜게 한다(새 Skill 적용)
-def _step7():
+def _lock_key_file():
+    # 배포본 install.ps1 과 같은 처리(chmod 600 에 해당) — 이 사용자만 키 파일을 열 수 있게 한다
+    user = os.environ.get("USERNAME", "")
+    if user:
+        run(["icacls", str(KEY_FILE), "/inheritance:r", "/grant:r", f"{user}:(F)"])
+
+
+# 6단계: Skill 설치와 Virtual Key 연결 → 둘 다 ✅이면 Claude Code를 한 번 다시 켜게 한다(새 Skill 적용)
+def _step6():
     _skill()
     _env()
-    if RESULTS.get("Skill", (None,))[0] is True and RESULTS.get(".env", (None,))[0] is True:
+    if RESULTS.get("Skill", (None,))[0] is True and RESULTS.get("Virtual Key", (None,))[0] is True:
         print("👉 Claude Code 화면에 /exit 를 입력해 끄고, claude 를 입력해 다시 켜세요. 새 Skill은 다시 켜야 적용됩니다.")
 
 
@@ -392,18 +528,18 @@ def copy_prompt(text):
     print(f"   {text}")
 
 
-# 8단계: Splunk 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
-def _step8():
+# 7단계: Splunk 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
+def _step7():
     copy_prompt(SPLUNK_PROMPT)
 
 
-# 9단계: 일정 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
-def _step9():
+# 8단계: 일정 조회 프롬프트 복사 (결과는 Claude Code 화면에서 확인)
+def _step8():
     copy_prompt(CALENDAR_PROMPT)
 
 
-# 10단계: 최종 점검표 (0~7단계. Splunk·일정 조회는 Claude Code 화면에서 확인한다)
-def _step10():
+# 9단계: 최종 점검표 (0~6단계. Splunk·일정 조회는 Claude Code 화면에서 확인한다)
+def _step9():
     print("=== 셋팅 결과 요약 ===")
     count = {True: 0, False: 0, None: 0}
     for step in STEP_ORDER:
@@ -415,10 +551,75 @@ def _step10():
             print(f"⬜ {step}: 아직 실행하지 않음")
     print()
     if count[False] == 0 and all(s in RESULTS for s in STEP_ORDER):
-        print("🎉 셋팅 완료!" + (" (⚠️ 항목은 강사 안내를 따르세요)" if count[None] else ""))
+        print("🎉 셋팅 완료!" + (" (⚠️ 항목은 5단계에서 Claude Code가 대답했으면 괜찮습니다)" if count[None] else ""))
     else:
         print("❌ 또는 ⬜ 항목의 단계로 돌아가 ▶를 다시 누르세요. 같은 ❌가 반복되면 보조강사를 불러 주세요.")
-    print("Splunk·일정 조회(8·9단계)는 Claude Code 화면에 결과가 나왔으면 성공입니다.")
+    print("Splunk·일정 조회(7·8단계)는 Claude Code 화면에 결과가 나왔으면 성공입니다.")
+
+
+# 10단계: 교육 마무리 — 오늘 설치한 Skill과 키 파일을 지운다.
+#         되돌릴 수 없으므로 한 번 ▶로 지울 목록만 보여 주고, 같은 칸을 다시 ▶ 눌렀을 때 지운다.
+CLEANUP_LISTED = globals().get("CLEANUP_LISTED", False)
+
+
+def _cleanup_items():
+    # (설명, 경로, 링크인지) 목록. 있는 것만 돌려준다
+    items = []
+    skill = SKILL_INSTALL_DIR / SKILL_NAME
+    if skill.exists() or skill.is_symlink():
+        link = False
+        try:
+            link = bool(os.lstat(skill).st_file_attributes & 0x400)   # 링크(Junction)인지
+        except OSError:
+            pass
+        items.append((f"Skill {'링크' if link else '폴더'}", skill, link))
+    if SKILL_REPO_DIR.is_dir():
+        items.append(("Skill 압축을 푼 폴더", SKILL_REPO_DIR, False))
+    if KEY_FILE.exists():
+        items.append(("Virtual Key 파일", KEY_FILE, False))
+    practice_env = PRACTICE_DIR / ".env"
+    if practice_env.exists():
+        items.append(("실습 폴더의 .env", practice_env, False))
+    return items
+
+
+def _step10():
+    global CLEANUP_LISTED
+    items = _cleanup_items()
+    if not items:
+        show("마무리", True, "지울 것이 없습니다. 이미 정리됐습니다.")
+        CLEANUP_LISTED = False
+        return
+    if not CLEANUP_LISTED:
+        print("아래를 지웁니다. 되돌릴 수 없습니다.")
+        for what, path, _ in items:
+            print(f"   - {what}: {path}")
+        print()
+        print("👉 정말 지우려면 이 칸의 ▶를 한 번 더 누르세요. 그만두려면 다음 칸으로 넘어가면 됩니다.")
+        CLEANUP_LISTED = True
+        return
+
+    failed = []
+    for what, path, link in items:
+        try:
+            if link:
+                os.rmdir(path)              # 링크만 지운다(가리키던 폴더는 건드리지 않는다)
+            elif path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
+            print(f"🧹 지움 - {what}")
+        except Exception as e:
+            failed.append((what, e))
+    CLEANUP_LISTED = False
+    if failed:
+        for what, e in failed:
+            print(f"   {what}를 지우지 못했습니다: {e}")
+        show("마무리", False, "일부를 지우지 못했습니다.",
+             "VS Code와 Claude Code를 모두 닫고 이 칸의 ▶를 다시 누르세요. 그래도 남으면 보조강사를 불러 주세요.")
+    else:
+        show("마무리", True, "오늘 설치한 Skill과 Virtual Key를 지웠습니다.")
+        print("실습 폴더와 저장한 프롬프트는 그대로 남아 있습니다. 다시 쓰려면 개인 Virtual Key를 받아 6단계를 다시 하면 됩니다.")
 
 
 def step(n):
